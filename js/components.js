@@ -20,6 +20,36 @@
  */
 
 /**
+ * Reset paragraph margins in HTML content
+ * Adds inline margin: 0 to all <p> tags
+ */
+function resetParagraphMargins(html) {
+    if (!html) return html;
+    
+    // Handle <p> tags that already have a style attribute
+    html = html.replace(/<p\s+style="([^"]*)"/gi, (match, existingStyle) => {
+        // Remove any existing margin properties
+        let cleanedStyle = existingStyle.replace(/margin[^;]*;?/gi, '').trim();
+        // Remove multiple semicolons/spaces
+        cleanedStyle = cleanedStyle.replace(/;\s*;/g, ';').trim();
+        // Add margin: 0
+        const separator = cleanedStyle && !cleanedStyle.endsWith(';') ? '; ' : '';
+        return `<p style="${cleanedStyle}${separator}margin: 0;"`;
+    });
+    
+    // Handle <p> tags without style attribute (but may have other attributes)
+    html = html.replace(/<p(\s+[^>]*)?>/gi, (match, attrs) => {
+        if (match.includes('style=')) {
+            return match; // Already handled above
+        }
+        // Add style attribute
+        return `<p style="margin: 0;"${attrs || ''}>`;
+    });
+    
+    return html;
+}
+
+/**
  * Component Definitions
  * Each component has a template function that generates email-safe HTML
  */
@@ -30,7 +60,7 @@ export const componentDefinitions = {
         icon: '📝',
         description: 'Rich text content',
         defaultData: {
-            content: '<p>Enter your text here...</p>',
+            content: '<p style="margin: 0;">Enter your text here...</p>',
             fontSize: 16,
             fontFamily: 'Arial, sans-serif',
             color: '#000000',
@@ -49,7 +79,7 @@ export const componentDefinitions = {
                             <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
                                 <tr>
                                     <td align="${data.textAlign || 'left'}" style="padding: ${data.padding || '20px'}; font-family: ${data.fontFamily || 'Arial, sans-serif'}; font-size: ${data.fontSize || 16}px; color: ${data.color || '#000000'}; line-height: ${data.lineHeight || 1.6};">
-                                        ${data.content || '<p>Enter your text here...</p>'}
+                                        ${resetParagraphMargins(data.content) || '<p style="margin: 0;">Enter your text here...</p>'}
                                     </td>
                                 </tr>
                             </table>
@@ -253,8 +283,8 @@ export const componentDefinitions = {
         icon: '📊',
         description: 'Side-by-side content',
         defaultData: {
-            column1Content: '<p>Left column content</p>',
-            column2Content: '<p>Right column content</p>',
+            column1Content: '<p style="margin: 0;">Left column content</p>',
+            column2Content: '<p style="margin: 0;">Right column content</p>',
             column1Width: '50%',
             column2Width: '50%',
             padding: '20px',
@@ -278,10 +308,10 @@ export const componentDefinitions = {
                                         <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                             <tr>
                                                 <td width="${col1Width}" valign="top" style="padding-right: ${gap};">
-                                                    ${data.column1Content || '<p>Left column content</p>'}
+                                                    ${resetParagraphMargins(data.column1Content) || '<p style="margin: 0;">Left column content</p>'}
                                                 </td>
                                                 <td width="${col2Width}" valign="top" style="padding-left: ${gap};">
-                                                    ${data.column2Content || '<p>Right column content</p>'}
+                                                    ${resetParagraphMargins(data.column2Content) || '<p style="margin: 0;">Right column content</p>'}
                                                 </td>
                                             </tr>
                                         </table>
