@@ -37,17 +37,27 @@ export const componentDefinitions = {
             lineHeight: 1.6,
             textAlign: 'left',
             padding: '20px',
+            margin: '0px',
             backgroundColor: '#ffffff'
         },
-        htmlTemplate: (data) => `
-            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
-                <tr>
-                    <td align="${data.textAlign || 'left'}" style="padding: ${data.padding || '20px'}; font-family: ${data.fontFamily || 'Arial, sans-serif'}; font-size: ${data.fontSize || 16}px; color: ${data.color || '#000000'}; line-height: ${data.lineHeight || 1.6};">
-                        ${data.content || '<p>Enter your text here...</p>'}
-                    </td>
-                </tr>
-            </table>
-        `
+        htmlTemplate: (data) => {
+            const margin = data.margin || '0px';
+            return `
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                    <tr>
+                        <td>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                                <tr>
+                                    <td align="${data.textAlign || 'left'}" style="padding: ${data.padding || '20px'}; font-family: ${data.fontFamily || 'Arial, sans-serif'}; font-size: ${data.fontSize || 16}px; color: ${data.color || '#000000'}; line-height: ${data.lineHeight || 1.6};">
+                                        ${data.content || '<p>Enter your text here...</p>'}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
     },
 
     heading: {
@@ -63,18 +73,26 @@ export const componentDefinitions = {
             color: '#000000',
             textAlign: 'left',
             padding: '20px',
+            margin: '0px',
             backgroundColor: '#ffffff'
         },
         htmlTemplate: (data) => {
             const tag = data.level || 'h1';
             const fontSize = data.fontSize || 32;
+            const margin = data.margin || '0px';
             return `
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td align="${data.textAlign || 'left'}" style="padding: ${data.padding || '20px'};">
-                            <${tag} style="margin: 0; font-family: ${data.fontFamily || 'Arial, sans-serif'}; font-size: ${fontSize}px; color: ${data.color || '#000000'}; font-weight: bold; line-height: 1.2;">
-                                ${data.text || 'Your Heading Here'}
-                            </${tag}>
+                        <td>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                                <tr>
+                                    <td align="${data.textAlign || 'left'}" style="padding: ${data.padding || '20px'};">
+                                        <${tag} style="margin: 0; font-family: ${data.fontFamily || 'Arial, sans-serif'}; font-size: ${fontSize}px; color: ${data.color || '#000000'}; font-weight: bold; line-height: 1.2;">
+                                            ${data.text || 'Your Heading Here'}
+                                        </${tag}>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                 </table>
@@ -94,6 +112,7 @@ export const componentDefinitions = {
             textColor: '#ffffff',
             fontSize: 16,
             padding: '12px 24px',
+            margin: '20px 0px',
             borderRadius: '4px',
             fullWidth: false,
             align: 'left'
@@ -101,15 +120,22 @@ export const componentDefinitions = {
         htmlTemplate: (data) => {
             const width = data.fullWidth ? '100%' : 'auto';
             const display = data.fullWidth ? 'block' : 'inline-block';
+            const margin = data.margin || '0px';
             
             return `
-                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td align="${data.align || 'left'}" style="padding: 20px;">
-                            <a href="${data.url || '#'}" 
-                               style="display: ${display}; width: ${width}; background-color: ${data.backgroundColor || '#2563eb'}; color: ${data.textColor || '#ffffff'}; text-decoration: none; padding: ${data.padding || '12px 24px'}; border-radius: ${data.borderRadius || '4px'}; font-size: ${data.fontSize || 16}px; font-family: Arial, sans-serif; text-align: center;">
-                                ${data.text || 'Click Here'}
-                            </a>
+                        <td>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td align="${data.align || 'left'}" style="padding: 20px;">
+                                        <a href="${data.url || '#'}" 
+                                           style="display: ${display}; width: ${width}; background-color: ${data.backgroundColor || '#2563eb'}; color: ${data.textColor || '#ffffff'}; text-decoration: none; padding: ${data.padding || '12px 24px'}; border-radius: ${data.borderRadius || '4px'}; font-size: ${data.fontSize || 16}px; font-family: Arial, sans-serif; text-align: center;">
+                                            ${data.text || 'Click Here'}
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                 </table>
@@ -129,18 +155,26 @@ export const componentDefinitions = {
             maxWidth: '600px',
             align: 'center',
             padding: '20px',
+            margin: '0px',
             borderRadius: '0px',
             backgroundColor: '#ffffff'
         },
         htmlTemplate: (data) => {
+            const margin = data.margin || '0px';
             return `
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td align="${data.align || 'center'}" style="padding: ${data.padding || '20px'};">
-                            <img src="${data.src || 'https://via.placeholder.com/600x300'}" 
-                                 alt="${data.alt || 'Image'}" 
-                                 width="${data.maxWidth || '600'}" 
-                                 style="max-width: 100%; height: auto; border-radius: ${data.borderRadius || '0px'}; display: block;" />
+                        <td>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                                <tr>
+                                    <td align="${data.align || 'center'}" style="padding: ${data.padding || '20px'};">
+                                        <img src="${data.src || 'https://via.placeholder.com/600x300'}" 
+                                             alt="${data.alt || 'Image'}" 
+                                             width="${data.maxWidth || '600'}" 
+                                             style="max-width: 100%; height: auto; border-radius: ${data.borderRadius || '0px'}; display: block;" />
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                 </table>
@@ -157,16 +191,24 @@ export const componentDefinitions = {
             color: '#e2e8f0',
             height: '1px',
             padding: '20px',
+            margin: '0px',
             backgroundColor: '#ffffff'
         },
         htmlTemplate: (data) => {
+            const margin = data.margin || '0px';
             return `
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td align="center" style="padding: ${data.padding || '20px'};">
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <td>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
                                 <tr>
-                                    <td style="border-top: ${data.height || '1px'} solid ${data.color || '#e2e8f0'};"></td>
+                                    <td align="center" style="padding: ${data.padding || '20px'};">
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <td style="border-top: ${data.height || '1px'} solid ${data.color || '#e2e8f0'};"></td>
+                                            </tr>
+                                        </table>
+                                    </td>
                                 </tr>
                             </table>
                         </td>
@@ -183,13 +225,22 @@ export const componentDefinitions = {
         description: 'Vertical spacing',
         defaultData: {
             height: '40px',
+            padding: '0px',
+            margin: '0px',
             backgroundColor: '#ffffff'
         },
         htmlTemplate: (data) => {
+            const margin = data.margin || '0px';
             return `
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td style="height: ${data.height || '40px'}; line-height: ${data.height || '40px'}; font-size: 1px;">&nbsp;</td>
+                        <td>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                                <tr>
+                                    <td style="height: ${data.height || '40px'}; line-height: ${data.height || '40px'}; font-size: 1px; padding: ${data.padding || '0px'};">&nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
                     </tr>
                 </table>
             `;
@@ -207,6 +258,7 @@ export const componentDefinitions = {
             column1Width: '50%',
             column2Width: '50%',
             padding: '20px',
+            margin: '0px',
             backgroundColor: '#ffffff',
             gap: '20px'
         },
@@ -214,18 +266,25 @@ export const componentDefinitions = {
             const gap = data.gap || '20px';
             const col1Width = data.column1Width || '50%';
             const col2Width = data.column2Width || '50%';
+            const margin = data.margin || '0px';
             
             return `
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td style="padding: ${data.padding || '20px'};">
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <td>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
                                 <tr>
-                                    <td width="${col1Width}" valign="top" style="padding-right: ${gap};">
-                                        ${data.column1Content || '<p>Left column content</p>'}
-                                    </td>
-                                    <td width="${col2Width}" valign="top" style="padding-left: ${gap};">
-                                        ${data.column2Content || '<p>Right column content</p>'}
+                                    <td style="padding: ${data.padding || '20px'};">
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <td width="${col1Width}" valign="top" style="padding-right: ${gap};">
+                                                    ${data.column1Content || '<p>Left column content</p>'}
+                                                </td>
+                                                <td width="${col2Width}" valign="top" style="padding-left: ${gap};">
+                                                    ${data.column2Content || '<p>Right column content</p>'}
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>
@@ -251,6 +310,7 @@ export const componentDefinitions = {
             color: '#64748b',
             textAlign: 'center',
             padding: '40px 20px',
+            margin: '0px',
             backgroundColor: '#f8fafc'
         },
         htmlTemplate: (data) => {
@@ -260,13 +320,20 @@ export const componentDefinitions = {
                     `<a href="${link.url || '#'}" style="color: ${data.color || '#64748b'}; text-decoration: underline; margin: 0 8px;">${link.text}</a>`
                 ).join(' | ');
             }
+            const margin = data.margin || '0px';
             
             return `
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#f8fafc'};">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td align="${data.textAlign || 'center'}" style="padding: ${data.padding || '40px 20px'}; font-family: Arial, sans-serif; font-size: ${data.fontSize || 12}px; color: ${data.color || '#64748b'}; line-height: 1.6;">
-                            ${data.text || '© 2024 Your Company. All rights reserved.'}
-                            ${linksHtml ? '<br><br>' + linksHtml : ''}
+                        <td>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#f8fafc'};">
+                                <tr>
+                                    <td align="${data.textAlign || 'center'}" style="padding: ${data.padding || '40px 20px'}; font-family: Arial, sans-serif; font-size: ${data.fontSize || 12}px; color: ${data.color || '#64748b'}; line-height: 1.6;">
+                                        ${data.text || '© 2024 Your Company. All rights reserved.'}
+                                        ${linksHtml ? '<br><br>' + linksHtml : ''}
+                                    </td>
+                                </tr>
+                            </table>
                         </td>
                     </tr>
                 </table>

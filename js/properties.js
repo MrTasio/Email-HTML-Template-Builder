@@ -103,6 +103,26 @@ class PropertiesManager {
     }
 
     /**
+     * Get common spacing fields (padding and margin)
+     */
+    getSpacingFields(currentData) {
+        return [
+            {
+                type: 'text',
+                key: 'padding',
+                label: 'Padding (e.g., 20px or 20px 10px)',
+                value: currentData.padding || '20px'
+            },
+            {
+                type: 'text',
+                key: 'margin',
+                label: 'Margin (e.g., 20px or 20px 10px)',
+                value: currentData.margin || '0px'
+            }
+        ];
+    }
+
+    /**
      * Get field definitions for a block type
      */
     getFieldsForType(type, currentData) {
@@ -166,17 +186,12 @@ class PropertiesManager {
                             step: 0.1
                         },
                         {
-                            type: 'text',
-                            key: 'padding',
-                            label: 'Padding (e.g., 20px or 20px 10px)',
-                            value: currentData.padding || '20px'
-                        },
-                        {
                             type: 'color',
                             key: 'backgroundColor',
                             label: 'Background Color',
                             value: currentData.backgroundColor || '#ffffff'
-                        }
+                        },
+                        ...this.getSpacingFields(currentData)
                     ]
                 });
                 break;
@@ -224,7 +239,14 @@ class PropertiesManager {
                                 { value: 'center', label: 'Center' },
                                 { value: 'right', label: 'Right' }
                             ]
-                        }
+                        },
+                        {
+                            type: 'color',
+                            key: 'backgroundColor',
+                            label: 'Background Color',
+                            value: currentData.backgroundColor || '#ffffff'
+                        },
+                        ...this.getSpacingFields(currentData)
                     ]
                 });
                 break;
@@ -265,12 +287,6 @@ class PropertiesManager {
                         },
                         {
                             type: 'text',
-                            key: 'padding',
-                            label: 'Padding (e.g., 12px 24px)',
-                            value: currentData.padding || '12px 24px'
-                        },
-                        {
-                            type: 'text',
                             key: 'borderRadius',
                             label: 'Border Radius (px)',
                             value: currentData.borderRadius || '4px'
@@ -291,7 +307,8 @@ class PropertiesManager {
                             key: 'fullWidth',
                             label: 'Full Width',
                             value: currentData.fullWidth || false
-                        }
+                        },
+                        ...this.getSpacingFields(currentData)
                     ]
                 });
                 break;
@@ -331,12 +348,6 @@ class PropertiesManager {
                         },
                         {
                             type: 'text',
-                            key: 'padding',
-                            label: 'Padding',
-                            value: currentData.padding || '20px'
-                        },
-                        {
-                            type: 'text',
                             key: 'borderRadius',
                             label: 'Border Radius (px)',
                             value: currentData.borderRadius || '0px'
@@ -346,7 +357,8 @@ class PropertiesManager {
                             key: 'backgroundColor',
                             label: 'Background Color',
                             value: currentData.backgroundColor || '#ffffff'
-                        }
+                        },
+                        ...this.getSpacingFields(currentData)
                     ]
                 });
                 break;
@@ -368,11 +380,12 @@ class PropertiesManager {
                             value: currentData.height || '1px'
                         },
                         {
-                            type: 'text',
-                            key: 'padding',
-                            label: 'Padding',
-                            value: currentData.padding || '20px'
-                        }
+                            type: 'color',
+                            key: 'backgroundColor',
+                            label: 'Background Color',
+                            value: currentData.backgroundColor || '#ffffff'
+                        },
+                        ...this.getSpacingFields(currentData)
                     ]
                 });
                 break;
@@ -386,7 +399,14 @@ class PropertiesManager {
                             key: 'height',
                             label: 'Height (px)',
                             value: currentData.height || '40px'
-                        }
+                        },
+                        {
+                            type: 'color',
+                            key: 'backgroundColor',
+                            label: 'Background Color',
+                            value: currentData.backgroundColor || '#ffffff'
+                        },
+                        ...this.getSpacingFields(currentData)
                     ]
                 });
                 break;
@@ -424,7 +444,14 @@ class PropertiesManager {
                             key: 'gap',
                             label: 'Gap Between Columns',
                             value: currentData.gap || '20px'
-                        }
+                        },
+                        {
+                            type: 'color',
+                            key: 'backgroundColor',
+                            label: 'Background Color',
+                            value: currentData.backgroundColor || '#ffffff'
+                        },
+                        ...this.getSpacingFields(currentData)
                     ]
                 });
                 break;
@@ -461,7 +488,14 @@ class PropertiesManager {
                                 { value: 'center', label: 'Center' },
                                 { value: 'right', label: 'Right' }
                             ]
-                        }
+                        },
+                        {
+                            type: 'color',
+                            key: 'backgroundColor',
+                            label: 'Background Color',
+                            value: currentData.backgroundColor || '#f8fafc'
+                        },
+                        ...this.getSpacingFields(currentData)
                     ]
                 });
                 break;

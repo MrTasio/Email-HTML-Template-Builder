@@ -19,6 +19,17 @@ class CanvasManager {
         this.canvas = null;
         this.emptyState = null;
         this.sortableInstance = null;
+        this.dragDropHandlers = {
+            componentsList: {
+                dragstart: null,
+                dragend: null
+            },
+            canvas: {
+                dragover: null,
+                dragleave: null,
+                drop: null
+            }
+        };
     }
 
     /**
@@ -191,11 +202,15 @@ class CanvasManager {
      * Setup drag and drop from sidebar
      */
     setupDragDrop() {
+        // Remove existing listeners if they exist
+        this.removeDragDropListeners();
+        
         // Use event delegation for component items (handles dynamically added items)
         const componentsList = document.getElementById('componentsList');
         
         if (componentsList) {
-            componentsList.addEventListener('dragstart', (e) => {
+            // Create handler functions
+            this.dragDropHandlers.componentsList.dragstart = (e) => {
                 const item = e.target.closest('.component-item');
                 if (!item) return;
                 
@@ -205,36 +220,41 @@ class CanvasManager {
                     e.dataTransfer.effectAllowed = 'copy';
                     item.style.opacity = '0.5';
                 }
-            });
+            };
             
-            componentsList.addEventListener('dragend', (e) => {
+            this.dragDropHandlers.componentsList.dragend = (e) => {
                 const item = e.target.closest('.component-item');
                 if (item) {
                     item.style.opacity = '1';
                 }
-            });
+            };
+            
+            // Add listeners
+            componentsList.addEventListener('dragstart', this.dragDropHandlers.componentsList.dragstart);
+            componentsList.addEventListener('dragend', this.dragDropHandlers.componentsList.dragend);
         }
         
         // Make canvas a drop zone
         if (this.canvas) {
-            this.canvas.addEventListener('dragover', (e) => {
+            // Create handler functions
+            this.dragDropHandlers.canvas.dragover = (e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'copy';
                 
                 // Highlight canvas
                 this.canvas.style.borderColor = '#2563eb';
                 this.canvas.style.backgroundColor = '#eff6ff';
-            });
+            };
             
-            this.canvas.addEventListener('dragleave', (e) => {
+            this.dragDropHandlers.canvas.dragleave = (e) => {
                 // Only hide highlight if leaving canvas area
                 if (!this.canvas.contains(e.relatedTarget)) {
                     this.canvas.style.borderColor = '';
                     this.canvas.style.backgroundColor = '';
                 }
-            });
+            };
             
-            this.canvas.addEventListener('drop', (e) => {
+            this.dragDropHandlers.canvas.drop = (e) => {
                 e.preventDefault();
                 
                 // Reset canvas styling
@@ -245,7 +265,35 @@ class CanvasManager {
                 if (componentType) {
                     this.addBlockFromSidebar(componentType);
                 }
-            });
+            };
+            
+            // Add listeners
+            this.canvas.addEventListener('dragover', this.dragDropHandlers.canvas.dragover);
+            this.canvas.addEventListener('dragleave', this.dragDropHandlers.canvas.dragleave);
+            this.canvas.addEventListener('drop', this.dragDropHandlers.canvas.drop);
+        }
+    }
+    
+    /**
+     * Remove drag and drop event listeners
+     */
+    removeDragDropListeners() {
+        const componentsList = document.getElementById('componentsList');
+        
+        if (componentsList && this.dragDropHandlers.componentsList.dragstart) {
+            componentsList.removeEventListener('dragstart', this.dragDropHandlers.componentsList.dragstart);
+            componentsList.removeEventListener('dragend', this.dragDropHandlers.componentsList.dragend);
+            this.dragDropHandlers.componentsList.dragstart = null;
+            this.dragDropHandlers.componentsList.dragend = null;
+        }
+        
+        if (this.canvas && this.dragDropHandlers.canvas.dragover) {
+            this.canvas.removeEventListener('dragover', this.dragDropHandlers.canvas.dragover);
+            this.canvas.removeEventListener('dragleave', this.dragDropHandlers.canvas.dragleave);
+            this.canvas.removeEventListener('drop', this.dragDropHandlers.canvas.drop);
+            this.dragDropHandlers.canvas.dragover = null;
+            this.dragDropHandlers.canvas.dragleave = null;
+            this.dragDropHandlers.canvas.drop = null;
         }
     }
 
