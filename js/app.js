@@ -297,6 +297,16 @@ class EmailBuilderApp {
             this.handleExport();
         });
         
+        // Import
+        document.getElementById('importBtn')?.addEventListener('click', () => {
+            this.handleImport();
+        });
+        
+        // File input change handler
+        document.getElementById('importFileInput')?.addEventListener('change', (e) => {
+            this.processImportFile(e.target.files[0]);
+        });
+        
         // Templates
         document.getElementById('templatesBtn')?.addEventListener('click', () => {
             this.openTemplates();
@@ -412,23 +422,184 @@ class EmailBuilderApp {
      * Handle export
      */
     handleExport() {
-        const choice = confirm('Copy HTML to clipboard? (OK = Copy, Cancel = Download)');
+        const exportFormat = confirm(
+            'What would you like to export?\n\n' +
+            'OK = Export as JSON (shareable template file)\n' +
+            'Cancel = Export as HTML (email-ready)'
+        );
         
-        if (choice) {
-            emailExporter.copyToClipboard().then(success => {
-                if (success) {
-                    alert('HTML copied to clipboard!');
-                } else {
-                    alert('Failed to copy. Try downloading instead.');
-                }
-            });
+        if (exportFormat) {
+            // Export as JSON for sharing
+            this.exportTemplateJSON();
+            alert('Template exported as JSON! Share this file with others to import.');
         } else {
-            const filename = prompt('Enter filename:', 'email-template.html');
-            if (filename) {
-                emailExporter.downloadHTML(filename);
-                alert('HTML downloaded!');
+            // Export as HTML (original behavior)
+            const choice = confirm('Copy HTML to clipboard? (OK = Copy, Cancel = Download)');
+            
+            if (choice) {
+                emailExporter.copyToClipboard().then(success => {
+                    if (success) {
+                        alert('HTML copied to clipboard!');
+                    } else {
+                        alert('Failed to copy. Try downloading instead.');
+                    }
+                });
+            } else {
+                const filename = prompt('Enter filename:', 'email-template.html');
+                if (filename) {
+                    emailExporter.downloadHTML(filename);
+                    alert('HTML downloaded!');
+                }
             }
         }
+    }
+
+    /**
+     * Handle import - trigger file input
+     */
+    handleImport() {
+        const fileInput = document.getElementById('importFileInput');
+        if (fileInput) {
+            fileInput.click();
+        }
+    }
+
+    /**
+     * Process imported file
+     */
+    async processImportFile(file) {
+        if (!file) return;
+        
+        // Validate file type
+        if (!file.name.endsWith('.json') && !file.name.endsWith('.txt')) {
+            alert('Please import a JSON file (.json or .txt)');
+            return;
+        }
+        
+        try {
+            const text = await file.text();
+            const jsonData = JSON.parse(text);
+            
+            // Validate JSON structure
+            if (!jsonData || typeof jsonData !== 'object') {
+                throw new Error('Invalid JSON format');
+            }
+            
+            // Determine import type
+            if (jsonData.blocks && Array.isArray(jsonData.blocks)) {
+                // It's a full template
+                this.importTemplate(jsonData);
+            } else if (jsonData.type && jsonData.data) {
+                // It's a single block (either direct format or saved block format)
+                this.importBlock(jsonData, file.name);
+            } else if (jsonData.name && jsonData.type && jsonData.data) {
+                // It's a saved block format from library
+                this.importBlock(jsonData, jsonData.name);
+            } else {
+                throw new Error('Invalid template/block format. Expected:\n- Template: { blocks: [], version: "1.0" }\n- Block: { type: "...", data: {...} }');
+            }
+            
+        } catch (error) {
+            console.error('Import error:', error);
+            alert(`Failed to import: ${error.message || 'Invalid file format'}`);
+        }
+        
+        // Reset file input
+        const fileInput = document.getElementById('importFileInput');
+        if (fileInput) {
+            fileInput.value = '';
+        }
+    }
+
+    /**
+     * Import template (full email template)
+     */
+    importTemplate(templateData) {
+        const confirmReplace = confirm(
+            'Import this template?\n\n' +
+            'This will replace your current canvas.\n' +
+            'OK = Replace, Cancel = Append to existing blocks'
+        );
+        
+        if (confirmReplace) {
+            // Replace current canvas
+            emailModel.fromJSON(templateData);
+            alert('Template imported successfully!');
+        } else {
+            // Append to existing blocks
+            const blocks = templateData.blocks || [];
+            blocks.forEach(block => {
+                emailModel.addBlock({
+                    type: block.type,
+                    data: block.data
+                });
+            });
+            alert(`Imported ${blocks.length} block(s) to your canvas!`);
+        }
+    }
+
+    /**
+     * Import single block to library
+     */
+    async importBlock(blockData, filenameOrName) {
+        // Use name from data if available, otherwise use filename
+        const defaultName = blockData.name || (typeof filenameOrName === 'string' ? filenameOrName.replace(/\.(json|txt)$/i, '') : 'Imported Block');
+        const blockName = prompt(
+            'Enter a name for this block:',
+            defaultName
+        );
+        
+        if (!blockName) return;
+        
+        try {
+            // Validate block structure
+            if (!blockData.type || !blockData.data) {
+                throw new Error('Invalid block format. Block must have type and data.');
+            }
+            
+            // Check if component type exists
+            const component = getComponent(blockData.type);
+            if (!component) {
+                throw new Error(`Component type "${blockData.type}" not found.`);
+            }
+            
+            // Create block object for library
+            const block = {
+                id: blockData.id || `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                type: blockData.type,
+                data: blockData.data
+            };
+            
+            // Save to library
+            await storageManager.saveBlock(block, blockName);
+            
+            // Refresh library tab if it's active
+            this.refreshLibraryTab();
+            
+            alert('Block imported to library successfully!');
+        } catch (error) {
+            console.error('Block import error:', error);
+            alert(`Failed to import block: ${error.message || 'Unknown error'}`);
+        }
+    }
+
+    /**
+     * Export template as JSON (for sharing)
+     */
+    exportTemplateJSON() {
+        const templateData = emailModel.toJSON();
+        const jsonString = JSON.stringify(templateData, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'email-template.json';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        URL.revokeObjectURL(url);
     }
 
     /**

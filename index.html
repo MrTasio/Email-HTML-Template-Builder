@@ -32,6 +32,9 @@
             <button class="toolbar-btn" id="exportBtn" title="Export HTML">
                 <span>📥</span> Export
             </button>
+            <button class="toolbar-btn" id="importBtn" title="Import Template">
+                <span>📤</span> Import
+            </button>
         </div>
         <div class="top-bar-right">
             <button class="toolbar-btn" id="templatesBtn" title="My Templates">
@@ -128,6 +131,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="importFileInput" accept=".json,.txt" style="display: none;" />
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
