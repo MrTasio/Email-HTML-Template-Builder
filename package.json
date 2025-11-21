@@ -1,0 +1,20 @@
+{
+  "name": "email-template-builder",
+  "version": "1.0.0",
+  "description": "A production-feeling email template builder - learn step by step",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve ."
+  },
+  "keywords": ["email", "builder", "template", "drag-drop"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "sortablejs": "^1.15.0"
+  },
+  "devDependencies": {
+    "html2canvas": "^1.4.1"
+  }
+}
+

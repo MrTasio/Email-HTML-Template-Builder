@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Template Builder</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <!-- Top Bar -->
+    <header class="top-bar">
+        <div class="top-bar-left">
+            <div class="logo">
+                <span class="logo-icon">✉️</span>
+                <span class="logo-text">Email Builder</span>
+            </div>
+        </div>
+        <div class="top-bar-center">
+            <button class="toolbar-btn" id="undoBtn" title="Undo (Ctrl+Z)">
+                <span>↶</span> Undo
+            </button>
+            <button class="toolbar-btn" id="redoBtn" title="Redo (Ctrl+Y)">
+                <span>↷</span> Redo
+            </button>
+            <div class="divider"></div>
+            <button class="toolbar-btn primary" id="saveBtn" title="Save (Ctrl+S)">
+                <span>💾</span> Save
+            </button>
+            <button class="toolbar-btn" id="previewBtn" title="Preview">
+                <span>👁️</span> Preview
+            </button>
+            <button class="toolbar-btn" id="exportBtn" title="Export HTML">
+                <span>📥</span> Export
+            </button>
+        </div>
+        <div class="top-bar-right">
+            <button class="toolbar-btn" id="templatesBtn" title="My Templates">
+                <span>📋</span> Templates
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Sidebar - Component Library -->
+        <aside class="left-sidebar">
+            <div class="sidebar-header">
+                <h2>Components</h2>
+                <p class="sidebar-subtitle">Drag blocks to canvas</p>
+            </div>
+            <div class="components-list" id="componentsList">
+                <!-- Components will be dynamically added here -->
+            </div>
+        </aside>
+
+        <!-- Center Canvas -->
+        <main class="canvas-area">
+            <div class="canvas-header">
+                <h2>Canvas</h2>
+                <div class="canvas-actions">
+                    <button class="small-btn" id="clearCanvasBtn">Clear All</button>
+                </div>
+            </div>
+            <div class="canvas-container">
+                <div class="canvas" id="canvas">
+                    <div class="canvas-empty-state" id="canvasEmptyState">
+                        <p>🎨 Your canvas is empty</p>
+                        <p class="hint">Drag components from the left sidebar to get started</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Right Sidebar - Properties Panel -->
+        <aside class="right-sidebar">
+            <div class="sidebar-header">
+                <h2>Properties</h2>
+                <p class="sidebar-subtitle" id="propertiesSubtitle">Select a block to edit</p>
+            </div>
+            <div class="properties-panel" id="propertiesPanel">
+                <div class="properties-empty">
+                    <p>No block selected</p>
+                    <p class="hint">Click on a block in the canvas to edit its properties</p>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal" id="previewModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>Preview</h2>
+                <div class="preview-controls">
+                    <button class="preview-toggle active" data-mode="desktop" id="previewDesktopBtn">Desktop</button>
+                    <button class="preview-toggle" data-mode="mobile" id="previewMobileBtn">Mobile</button>
+                </div>
+                <button class="modal-close" id="closePreviewBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="preview-container">
+                    <div class="preview-frame" id="previewFrame">
+                        <!-- Email preview will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates Modal -->
+    <div class="modal" id="templatesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>My Templates</h2>
+                <button class="modal-close" id="closeTemplatesBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="templates-list" id="templatesList">
+                    <!-- Templates will be shown here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
+
