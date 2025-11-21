@@ -17,6 +17,7 @@ import { emailModel } from './model.js';
 import { emailExporter } from './exporter.js';
 
 const STORAGE_KEY = 'emailTemplates';
+const SAVED_BLOCKS_KEY = 'emailSavedBlocks';
 
 class StorageManager {
     /**
@@ -231,6 +232,105 @@ class StorageManager {
      */
     clearAll() {
         localStorage.removeItem(STORAGE_KEY);
+    }
+
+    /**
+     * Get all saved blocks
+     * @returns {Array} - Array of saved block objects
+     */
+    getAllSavedBlocks() {
+        try {
+            const stored = localStorage.getItem('emailSavedBlocks');
+            if (!stored) return [];
+            return JSON.parse(stored);
+        } catch (error) {
+            console.error('Error loading saved blocks:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Save a block to library
+     * @param {Object} block - Block object with type and data
+     * @param {string} name - Block name
+     * @returns {string} - Saved block ID
+     */
+    async saveBlock(block, name) {
+        const savedBlocks = this.getAllSavedBlocks();
+        
+        const savedBlock = {
+            id: `saved-block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            name: name || `${block.type} Block`,
+            type: block.type,
+            data: JSON.parse(JSON.stringify(block.data)), // Deep clone
+            date: new Date().toISOString(),
+            thumbnail: null
+        };
+
+        // Generate thumbnail using html2canvas
+        try {
+            const canvas = document.getElementById('canvas');
+            if (canvas && typeof html2canvas !== 'undefined') {
+                // Find the block element in canvas
+                const blockElement = canvas.querySelector(`[data-block-id="${block.id}"]`);
+                if (blockElement) {
+                    const thumbnail = await html2canvas(blockElement, {
+                        backgroundColor: '#ffffff',
+                        scale: 0.3,
+                        logging: false,
+                        useCORS: true
+                    });
+                    savedBlock.thumbnail = thumbnail.toDataURL('image/png');
+                }
+            }
+        } catch (error) {
+            console.error('Error generating thumbnail:', error);
+        }
+
+        savedBlocks.push(savedBlock);
+        this.saveAllBlocks(savedBlocks);
+        
+        return savedBlock.id;
+    }
+
+    /**
+     * Delete a saved block
+     * @param {string} blockId - Saved block ID
+     * @returns {boolean} - Success
+     */
+    deleteSavedBlock(blockId) {
+        const savedBlocks = this.getAllSavedBlocks();
+        const filtered = savedBlocks.filter(b => b.id !== blockId);
+        
+        if (filtered.length === savedBlocks.length) {
+            return false; // Block not found
+        }
+        
+        this.saveAllBlocks(filtered);
+        return true;
+    }
+
+    /**
+     * Save all blocks to localStorage
+     * @param {Array} blocks - Array of saved blocks
+     */
+    saveAllBlocks(blocks) {
+        try {
+            localStorage.setItem('emailSavedBlocks', JSON.stringify(blocks));
+        } catch (error) {
+            console.error('Error saving blocks:', error);
+            alert('Error saving blocks. Storage may be full.');
+        }
+    }
+
+    /**
+     * Get a saved block by ID
+     * @param {string} blockId - Saved block ID
+     * @returns {Object|null} - Saved block or null
+     */
+    getSavedBlock(blockId) {
+        const savedBlocks = this.getAllSavedBlocks();
+        return savedBlocks.find(b => b.id === blockId) || null;
     }
 }
 

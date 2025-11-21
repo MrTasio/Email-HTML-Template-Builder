@@ -12,7 +12,8 @@
  */
 
 import { emailModel } from './model.js';
-import { renderBlockHTML, getComponent } from './components.js';
+import { storageManager } from './storage.js';
+import { getComponent, renderBlockHTML } from './components.js';
 
 class CanvasManager {
     constructor() {
@@ -141,6 +142,15 @@ class CanvasManager {
             this.duplicateBlock(block.id);
         };
         
+        const saveBtn = document.createElement('button');
+        saveBtn.className = 'block-control-btn';
+        saveBtn.title = 'Save to Library';
+        saveBtn.innerHTML = '💾';
+        saveBtn.onclick = (e) => {
+            e.stopPropagation();
+            this.saveBlockToLibrary(block.id);
+        };
+        
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'block-control-btn';
         deleteBtn.title = 'Delete';
@@ -151,6 +161,7 @@ class CanvasManager {
         };
         
         controls.appendChild(duplicateBtn);
+        controls.appendChild(saveBtn);
         controls.appendChild(deleteBtn);
         
         // Block content (this shows preview of email HTML)
@@ -239,6 +250,10 @@ class CanvasManager {
         // Use event delegation for component items (handles dynamically added items)
         const componentsList = document.getElementById('componentsList');
         
+        // Handle both components list and library list
+        const libraryList = document.getElementById('libraryList');
+        
+        // Setup drag handlers for components list
         if (componentsList) {
             // Create handler functions
             this.dragDropHandlers.componentsList.dragstart = (e) => {
@@ -263,6 +278,28 @@ class CanvasManager {
             // Add listeners
             componentsList.addEventListener('dragstart', this.dragDropHandlers.componentsList.dragstart);
             componentsList.addEventListener('dragend', this.dragDropHandlers.componentsList.dragend);
+        }
+        
+        // Setup drag handlers for library list
+        if (libraryList) {
+            libraryList.addEventListener('dragstart', (e) => {
+                const item = e.target.closest('.library-item');
+                if (!item) return;
+                
+                const savedBlockId = item.dataset.savedBlockId;
+                if (savedBlockId) {
+                    e.dataTransfer.setData('savedBlockId', savedBlockId);
+                    e.dataTransfer.effectAllowed = 'copy';
+                    item.style.opacity = '0.5';
+                }
+            });
+            
+            libraryList.addEventListener('dragend', (e) => {
+                const item = e.target.closest('.library-item');
+                if (item) {
+                    item.style.opacity = '1';
+                }
+            });
         }
         
         // Make canvas a drop zone
@@ -293,7 +330,11 @@ class CanvasManager {
                 this.canvas.style.backgroundColor = '';
                 
                 const componentType = e.dataTransfer.getData('componentType');
-                if (componentType) {
+                const savedBlockId = e.dataTransfer.getData('savedBlockId');
+                
+                if (savedBlockId) {
+                    this.addSavedBlockFromLibrary(savedBlockId);
+                } else if (componentType) {
                     this.addBlockFromSidebar(componentType);
                 }
             };
@@ -310,12 +351,19 @@ class CanvasManager {
      */
     removeDragDropListeners() {
         const componentsList = document.getElementById('componentsList');
+        const libraryList = document.getElementById('libraryList');
         
         if (componentsList && this.dragDropHandlers.componentsList.dragstart) {
             componentsList.removeEventListener('dragstart', this.dragDropHandlers.componentsList.dragstart);
             componentsList.removeEventListener('dragend', this.dragDropHandlers.componentsList.dragend);
             this.dragDropHandlers.componentsList.dragstart = null;
             this.dragDropHandlers.componentsList.dragend = null;
+        }
+        
+        // Remove listeners from library list by cloning (simpler approach)
+        if (libraryList) {
+            const newList = libraryList.cloneNode(true);
+            libraryList.parentNode.replaceChild(newList, libraryList);
         }
         
         if (this.canvas && this.dragDropHandlers.canvas.dragover) {
@@ -353,6 +401,61 @@ class CanvasManager {
                 blockEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             }
         }, 100);
+    }
+
+    /**
+     * Add saved block from library
+     */
+    addSavedBlockFromLibrary(savedBlockId) {
+        const savedBlock = storageManager.getSavedBlock(savedBlockId);
+        if (!savedBlock) {
+            console.error('Saved block not found:', savedBlockId);
+            return;
+        }
+        
+        const blockId = emailModel.addBlock({
+            type: savedBlock.type,
+            data: { ...savedBlock.data }
+        });
+        
+        // Select the newly added block
+        emailModel.selectBlock(blockId);
+        
+        // Scroll to new block
+        setTimeout(() => {
+            const blockEl = this.canvas.querySelector(`[data-block-id="${blockId}"]`);
+            if (blockEl) {
+                blockEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }, 100);
+    }
+
+    /**
+     * Save block to library
+     */
+    async saveBlockToLibrary(blockId) {
+        const block = emailModel.getBlock(blockId);
+        if (!block) {
+            console.error('Block not found:', blockId);
+            return;
+        }
+        
+        const name = prompt('Enter a name for this block:', `${block.type} Block`);
+        if (!name) return;
+        
+        try {
+            await storageManager.saveBlock(block, name);
+            
+            // Refresh library tab if it's active
+            if (window.emailBuilderApp) {
+                window.emailBuilderApp.refreshLibraryTab();
+            }
+            
+            alert('Block saved to library!');
+        } catch (error) {
+            console.error('Error saving block:', error);
+            alert('Error saving block to library.');
+        }
     }
 
 

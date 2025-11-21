@@ -17,7 +17,7 @@ import { canvasManager } from './canvas.js';
 import { propertiesManager } from './properties.js';
 import { emailExporter } from './exporter.js';
 import { storageManager } from './storage.js';
-import { getAllComponents } from './components.js';
+import { getAllComponents, getComponent } from './components.js';
 
 class EmailBuilderApp {
     constructor() {
@@ -83,6 +83,20 @@ class EmailBuilderApp {
      * Initialize component library (left sidebar)
      */
     initComponentLibrary() {
+        this.renderGeneralComponents();
+        this.renderLibraryComponents();
+        this.setupComponentTabs();
+        
+        // Re-initialize drag and drop after rendering components
+        setTimeout(() => {
+            canvasManager.setupDragDrop();
+        }, 100);
+    }
+
+    /**
+     * Render general components
+     */
+    renderGeneralComponents() {
         const componentsList = document.getElementById('componentsList');
         if (!componentsList) {
             console.error('Components list not found');
@@ -102,11 +116,150 @@ class EmailBuilderApp {
                 <div class="component-item-desc">${component.description}</div>
             </div>
         `).join('');
+    }
+
+    /**
+     * Render library (saved blocks)
+     */
+    renderLibraryComponents() {
+        const libraryList = document.getElementById('libraryList');
+        if (!libraryList) {
+            return;
+        }
         
-        // Re-initialize drag and drop after rendering components
-        setTimeout(() => {
-            canvasManager.setupDragDrop();
-        }, 100);
+        const savedBlocks = storageManager.getAllSavedBlocks();
+        
+        if (savedBlocks.length === 0) {
+            libraryList.innerHTML = `
+                <div class="library-empty-state">
+                    <div class="library-empty-state-icon">📚</div>
+                    <div class="library-empty-state-title">No saved blocks yet</div>
+                    <div class="library-empty-state-desc">Save a block from the canvas<br>to add it to your library</div>
+                </div>
+            `;
+            return;
+        }
+        
+        libraryList.innerHTML = savedBlocks.map(savedBlock => {
+            const component = getComponent(savedBlock.type);
+            const icon = component ? component.icon : '📦';
+            const date = new Date(savedBlock.date);
+            const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined });
+            const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            
+            return `
+                <div class="component-item library-item" 
+                     data-saved-block-id="${savedBlock.id}"
+                     draggable="true">
+                    <div class="component-item-header">
+                        <span class="component-item-icon">${icon}</span>
+                        <span class="component-item-label">${savedBlock.name}</span>
+                        <button class="library-item-delete" 
+                                title="Delete from library"
+                                onclick="event.stopPropagation(); window.emailBuilderApp.deleteSavedBlock('${savedBlock.id}')">
+                            🗑️
+                        </button>
+                    </div>
+                    ${savedBlock.thumbnail ? `
+                        <div class="library-item-thumbnail">
+                            <img src="${savedBlock.thumbnail}" alt="${savedBlock.name} preview" />
+                        </div>
+                    ` : ''}
+                    <div class="component-item-desc">
+                        <span style="font-weight: 500;">Saved:</span> ${dateStr} at ${timeStr}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    /**
+     * Setup component tabs
+     */
+    setupComponentTabs() {
+        const tabContainer = document.querySelector('.component-tabs');
+        const componentsList = document.getElementById('componentsList');
+        const libraryList = document.getElementById('libraryList');
+        
+        if (!tabContainer || !componentsList || !libraryList) {
+            return;
+        }
+        
+        // Remove existing listener if any
+        if (this._tabClickHandler) {
+            tabContainer.removeEventListener('click', this._tabClickHandler);
+        }
+        
+        // Create handler function
+        this._tabClickHandler = (e) => {
+            const tab = e.target.closest('.component-tab');
+            if (!tab) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const tabName = tab.dataset.tab;
+            if (!tabName) return;
+            
+            const tabs = document.querySelectorAll('.component-tab');
+            
+            // Update active state
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            // Re-query elements in case they were replaced
+            const currentComponentsList = document.getElementById('componentsList');
+            const currentLibraryList = document.getElementById('libraryList');
+            
+            if (!currentComponentsList || !currentLibraryList) {
+                console.error('Lists not found');
+                return;
+            }
+            
+            // Show/hide lists
+            if (tabName === 'general') {
+                currentComponentsList.classList.remove('hidden');
+                currentLibraryList.classList.add('hidden');
+            } else if (tabName === 'library') {
+                currentComponentsList.classList.add('hidden');
+                currentLibraryList.classList.remove('hidden');
+                this.renderLibraryComponents(); // Refresh library
+            }
+            
+            // Re-initialize drag and drop
+            setTimeout(() => {
+                canvasManager.setupDragDrop();
+            }, 100);
+        };
+        
+        // Attach listener using event delegation
+        tabContainer.addEventListener('click', this._tabClickHandler);
+    }
+
+    /**
+     * Refresh library tab
+     */
+    refreshLibraryTab() {
+        const libraryTab = document.querySelector('.component-tab[data-tab="library"]');
+        if (libraryTab && libraryTab.classList.contains('active')) {
+            this.renderLibraryComponents();
+            setTimeout(() => {
+                canvasManager.setupDragDrop();
+            }, 100);
+        }
+    }
+
+    /**
+     * Delete saved block
+     */
+    deleteSavedBlock(blockId) {
+        if (confirm('Delete this block from library?')) {
+            storageManager.deleteSavedBlock(blockId);
+            this.renderLibraryComponents();
+            setTimeout(() => {
+                canvasManager.setupDragDrop();
+            }, 100);
+        }
     }
 
     /**

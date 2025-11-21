@@ -48,8 +48,15 @@
                 <h2>Components</h2>
                 <p class="sidebar-subtitle">Drag blocks to canvas</p>
             </div>
+            <div class="component-tabs">
+                <button type="button" class="component-tab active" data-tab="general">General</button>
+                <button type="button" class="component-tab" data-tab="library">Library</button>
+            </div>
             <div class="components-list" id="componentsList">
                 <!-- Components will be dynamically added here -->
+            </div>
+            <div class="components-list hidden" id="libraryList">
+                <!-- Saved blocks will be dynamically added here -->
             </div>
         </aside>
 
