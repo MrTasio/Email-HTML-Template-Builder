@@ -582,6 +582,14 @@ class PropertiesManager {
                 input = document.createElement('input');
                 input.type = 'color';
                 input.value = fieldDef.value || '#000000';
+                // Allow dragging in color picker - only update after drag ends
+                // Stop drag events from bubbling to component drag handlers
+                input.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                });
+                input.addEventListener('dragstart', (e) => {
+                    e.stopPropagation();
+                });
                 break;
                 
             case 'select':
@@ -613,13 +621,29 @@ class PropertiesManager {
         }
         
         if (input) {
-            // Bind input to model updates
-            input.addEventListener('input', () => {
-                this.handleFieldChange(fieldDef.key, input);
-            });
+            // For color inputs, only update after drag ends (on change, not input)
+            if (input.type === 'color') {
+                input.addEventListener('change', () => {
+                    this.handleFieldChange(fieldDef.key, input);
+                });
+                // Don't listen to input event for color - only update when drag ends
+            } else {
+                // For other inputs, bind both input and change events
+                input.addEventListener('input', () => {
+                    this.handleFieldChange(fieldDef.key, input);
+                });
+                
+                input.addEventListener('change', () => {
+                    this.handleFieldChange(fieldDef.key, input);
+                });
+            }
             
-            input.addEventListener('change', () => {
-                this.handleFieldChange(fieldDef.key, input);
+            // Stop drag events from bubbling to component drag handlers (but allow native drag)
+            if (input.type !== 'color') {
+                input.draggable = false;
+            }
+            input.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
             });
             
             container.appendChild(input);
