@@ -29,9 +29,23 @@
             <button class="toolbar-btn" id="previewBtn" title="Preview">
                 <span>👁️</span> Preview
             </button>
-            <button class="toolbar-btn" id="exportBtn" title="Export HTML">
-                <span>📥</span> Export
-            </button>
+            <div class="toolbar-dropdown">
+                <button class="toolbar-btn" id="exportBtn" title="Export">
+                    <span>📥</span> Export
+                    <span style="margin-left: 4px;">▼</span>
+                </button>
+                <div class="toolbar-dropdown-menu" id="exportDropdown">
+                    <button class="dropdown-item" data-export="html-clipboard">
+                        <span>📋</span> Copy HTML to Clipboard
+                    </button>
+                    <button class="dropdown-item" data-export="html-download">
+                        <span>💾</span> Download HTML
+                    </button>
+                    <button class="dropdown-item" data-export="json">
+                        <span>📄</span> Export as JSON
+                    </button>
+                </div>
+            </div>
             <button class="toolbar-btn" id="importBtn" title="Import Template">
                 <span>📤</span> Import
             </button>

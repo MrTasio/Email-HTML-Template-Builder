@@ -292,10 +292,35 @@ class EmailBuilderApp {
             this.openPreview();
         });
         
-        // Export
-        document.getElementById('exportBtn')?.addEventListener('click', () => {
-            this.handleExport();
-        });
+        // Export dropdown
+        const exportBtn = document.getElementById('exportBtn');
+        const exportDropdown = document.getElementById('exportDropdown');
+        const exportContainer = exportBtn?.closest('.toolbar-dropdown');
+        
+        if (exportBtn && exportDropdown) {
+            // Toggle dropdown on button click
+            exportBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                exportContainer?.classList.toggle('active');
+            });
+            
+            // Handle dropdown item clicks
+            exportDropdown.querySelectorAll('.dropdown-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const exportType = item.dataset.export;
+                    this.handleExport(exportType);
+                    exportContainer?.classList.remove('active');
+                });
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!exportContainer?.contains(e.target)) {
+                    exportContainer?.classList.remove('active');
+                }
+            });
+        }
         
         // Import
         document.getElementById('importBtn')?.addEventListener('click', () => {
@@ -419,24 +444,12 @@ class EmailBuilderApp {
     }
 
     /**
-     * Handle export
+     * Handle export based on type
+     * @param {string} exportType - 'html-clipboard', 'html-download', or 'json'
      */
-    handleExport() {
-        const exportFormat = confirm(
-            'What would you like to export?\n\n' +
-            'OK = Export as JSON (shareable template file)\n' +
-            'Cancel = Export as HTML (email-ready)'
-        );
-        
-        if (exportFormat) {
-            // Export as JSON for sharing
-            this.exportTemplateJSON();
-            alert('Template exported as JSON! Share this file with others to import.');
-        } else {
-            // Export as HTML (original behavior)
-            const choice = confirm('Copy HTML to clipboard? (OK = Copy, Cancel = Download)');
-            
-            if (choice) {
+    handleExport(exportType) {
+        switch (exportType) {
+            case 'html-clipboard':
                 emailExporter.copyToClipboard().then(success => {
                     if (success) {
                         alert('HTML copied to clipboard!');
@@ -444,13 +457,23 @@ class EmailBuilderApp {
                         alert('Failed to copy. Try downloading instead.');
                     }
                 });
-            } else {
+                break;
+                
+            case 'html-download':
                 const filename = prompt('Enter filename:', 'email-template.html');
                 if (filename) {
                     emailExporter.downloadHTML(filename);
                     alert('HTML downloaded!');
                 }
-            }
+                break;
+                
+            case 'json':
+                this.exportTemplateJSON();
+                alert('Template exported as JSON! Share this file with others to import.');
+                break;
+                
+            default:
+                console.error('Unknown export type:', exportType);
         }
     }
 
