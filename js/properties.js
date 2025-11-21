@@ -720,29 +720,25 @@ class PropertiesManager {
         
         if (input) {
             // Color inputs are handled separately in the case statement
-            // For textarea, update on blur and auto-save after 2 minutes of inactivity
-            if (input.tagName === 'TEXTAREA') {
-                let textareaTimeout = null;
+            // For text inputs and textarea, update on blur and auto-save after 2 minutes of inactivity
+            if (input.type === 'text' || input.tagName === 'TEXTAREA') {
+                let typingTimeout = null;
                 
                 // Update on blur (when clicking outside)
                 input.addEventListener('blur', () => {
-                    clearTimeout(textareaTimeout);
+                    clearTimeout(typingTimeout);
                     this.handleFieldChange(fieldDef.key, input);
                 });
                 
                 // Auto-save after 2 minutes (120000ms) of no typing
                 input.addEventListener('input', () => {
-                    clearTimeout(textareaTimeout);
-                    textareaTimeout = setTimeout(() => {
+                    clearTimeout(typingTimeout);
+                    typingTimeout = setTimeout(() => {
                         this.handleFieldChange(fieldDef.key, input);
                     }, 120000); // 2 minutes
                 });
             } else {
-                // For other inputs, bind both input and change events
-                input.addEventListener('input', () => {
-                    this.handleFieldChange(fieldDef.key, input);
-                });
-                
+                // For other inputs (select, checkbox, number, range), bind change events
                 input.addEventListener('change', () => {
                     this.handleFieldChange(fieldDef.key, input);
                 });
@@ -776,20 +772,8 @@ class PropertiesManager {
             value = input.value;
         }
         
-        // Update model (with debounce for text inputs, but not textarea)
-        if (input.type === 'text') {
-            clearTimeout(this.inputTimeout);
-            emailModel.startTyping();
-            
-            this.inputTimeout = setTimeout(() => {
-                emailModel.updateBlock(this.currentBlockId, { [key]: value });
-                emailModel.stopTyping();
-                emailModel.saveState(); // Save after typing stops
-            }, 300);
-        } else {
-            // Immediate update for other inputs (including textarea on blur)
-            emailModel.updateBlock(this.currentBlockId, { [key]: value });
-        }
+        // Update model immediately (blur and auto-save after 2 minutes are handled in event listeners)
+        emailModel.updateBlock(this.currentBlockId, { [key]: value });
     }
 }
 
