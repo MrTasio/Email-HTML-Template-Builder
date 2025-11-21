@@ -579,17 +579,115 @@ class PropertiesManager {
                 break;
                 
             case 'color':
-                input = document.createElement('input');
-                input.type = 'color';
-                input.value = fieldDef.value || '#000000';
+                // Create wrapper for color picker + hex input
+                container.className = 'property-field color-field';
+                const colorWrapper = document.createElement('div');
+                colorWrapper.style.display = 'flex';
+                colorWrapper.style.gap = '8px';
+                colorWrapper.style.alignItems = 'center';
+                
+                // Color picker input
+                const colorInput = document.createElement('input');
+                colorInput.type = 'color';
+                colorInput.value = fieldDef.value || '#000000';
+                colorInput.style.width = '60px';
+                colorInput.style.height = '40px';
+                colorInput.style.flexShrink = '0';
                 // Allow dragging in color picker - only update after drag ends
                 // Stop drag events from bubbling to component drag handlers
-                input.addEventListener('mousedown', (e) => {
+                colorInput.addEventListener('mousedown', (e) => {
                     e.stopPropagation();
                 });
-                input.addEventListener('dragstart', (e) => {
+                colorInput.addEventListener('dragstart', (e) => {
                     e.stopPropagation();
                 });
+                
+                // Hex text input
+                const hexInput = document.createElement('input');
+                hexInput.type = 'text';
+                hexInput.value = fieldDef.value || '#000000';
+                hexInput.placeholder = '#000000';
+                hexInput.style.flex = '1';
+                hexInput.style.fontFamily = 'monospace';
+                hexInput.style.pattern = '#[0-9A-Fa-f]{6}';
+                
+                // Validate and update hex input
+                const validateHex = (value) => {
+                    if (!value) return false;
+                    const hexRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
+                    // Allow 3-digit hex - convert to 6-digit
+                    if (value.length === 4 && value[0] === '#' && /^#[0-9A-Fa-f]{3}$/i.test(value)) {
+                        return '#' + value[1] + value[1] + value[2] + value[2] + value[3] + value[3];
+                    }
+                    return hexRegex.test(value) ? value : false;
+                };
+                
+                // Update model handler
+                const updateModel = () => {
+                    if (this.currentBlockId) {
+                        this.handleFieldChange(fieldDef.key, colorInput);
+                    }
+                };
+                
+                // Update color picker when hex input changes
+                let hexTimeout = null;
+                hexInput.addEventListener('input', (e) => {
+                    clearTimeout(hexTimeout);
+                    let value = e.target.value;
+                    if (value && !value.startsWith('#')) {
+                        value = '#' + value;
+                        e.target.value = value;
+                    }
+                    
+                    // Validate hex value
+                    const validHex = validateHex(value);
+                    if (validHex) {
+                        const fullHex = typeof validHex === 'string' ? validHex : value;
+                        colorInput.value = fullHex;
+                        hexInput.value = fullHex;
+                        hexInput.style.borderColor = '';
+                        // Update model after typing stops
+                        hexTimeout = setTimeout(updateModel, 300);
+                    } else {
+                        hexInput.style.borderColor = '#ef4444'; // Red border for invalid
+                    }
+                });
+                
+                // Update hex input when color picker changes
+                colorInput.addEventListener('change', () => {
+                    hexInput.value = colorInput.value;
+                    hexInput.style.borderColor = '';
+                    updateModel();
+                });
+                
+                // Handle blur - validate and set if valid, or revert
+                hexInput.addEventListener('blur', () => {
+                    clearTimeout(hexTimeout);
+                    const validHex = validateHex(hexInput.value);
+                    if (validHex) {
+                        const fullHex = typeof validHex === 'string' ? validHex : hexInput.value;
+                        colorInput.value = fullHex;
+                        hexInput.value = fullHex;
+                        hexInput.style.borderColor = '';
+                        updateModel();
+                    } else if (hexInput.value) {
+                        // Revert to current color picker value
+                        hexInput.value = colorInput.value;
+                        hexInput.style.borderColor = '';
+                    }
+                });
+                
+                // Stop drag events from bubbling
+                hexInput.addEventListener('mousedown', (e) => {
+                    e.stopPropagation();
+                });
+                hexInput.draggable = false;
+                
+                colorWrapper.appendChild(colorInput);
+                colorWrapper.appendChild(hexInput);
+                container.appendChild(colorWrapper);
+                // Set input to null so it doesn't get appended again below
+                input = null;
                 break;
                 
             case 'select':
@@ -621,27 +719,18 @@ class PropertiesManager {
         }
         
         if (input) {
-            // For color inputs, only update after drag ends (on change, not input)
-            if (input.type === 'color') {
-                input.addEventListener('change', () => {
-                    this.handleFieldChange(fieldDef.key, input);
-                });
-                // Don't listen to input event for color - only update when drag ends
-            } else {
-                // For other inputs, bind both input and change events
-                input.addEventListener('input', () => {
-                    this.handleFieldChange(fieldDef.key, input);
-                });
-                
-                input.addEventListener('change', () => {
-                    this.handleFieldChange(fieldDef.key, input);
-                });
-            }
+            // Color inputs are handled separately in the case statement
+            // For other inputs, bind both input and change events
+            input.addEventListener('input', () => {
+                this.handleFieldChange(fieldDef.key, input);
+            });
             
-            // Stop drag events from bubbling to component drag handlers (but allow native drag)
-            if (input.type !== 'color') {
-                input.draggable = false;
-            }
+            input.addEventListener('change', () => {
+                this.handleFieldChange(fieldDef.key, input);
+            });
+            
+            // Stop drag events from bubbling to component drag handlers
+            input.draggable = false;
             input.addEventListener('mousedown', (e) => {
                 e.stopPropagation();
             });
