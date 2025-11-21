@@ -45,6 +45,37 @@ class CanvasManager {
         // Listen for model changes
         emailModel.on('blocksChanged', () => this.render());
         emailModel.on('selectionChanged', () => this.updateSelection());
+        
+        // Deselect block when clicking outside canvas
+        this.setupClickOutsideDeselect();
+    }
+    
+    /**
+     * Setup click outside canvas to deselect blocks
+     */
+    setupClickOutsideDeselect() {
+        document.addEventListener('click', (e) => {
+            // Don't deselect if clicking on:
+            // - Canvas blocks (they handle their own selection)
+            // - Properties panel
+            // - Component list
+            // - Modal overlays
+            // - Top bar
+            if (
+                e.target.closest('.canvas-block') ||
+                e.target.closest('.right-sidebar') ||
+                e.target.closest('.left-sidebar') ||
+                e.target.closest('.modal') ||
+                e.target.closest('.top-bar')
+            ) {
+                return;
+            }
+            
+            // Deselect if clicking on canvas background (empty space) or outside canvas area
+            if (emailModel.getSelectedBlock()) {
+                emailModel.selectBlock(null);
+            }
+        });
     }
 
     /**
