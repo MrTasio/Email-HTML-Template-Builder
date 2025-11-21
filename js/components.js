@@ -283,8 +283,20 @@ export const componentDefinitions = {
         icon: '📊',
         description: 'Side-by-side content',
         defaultData: {
+            column1Type: 'html',
+            column2Type: 'html',
             column1Content: '<p style="margin: 0;">Left column content</p>',
             column2Content: '<p style="margin: 0;">Right column content</p>',
+            column1Src: 'https://via.placeholder.com/300x200',
+            column1Alt: 'Left Image',
+            column1MaxWidth: '300',
+            column1Align: 'center',
+            column1BorderRadius: '0px',
+            column2Src: 'https://via.placeholder.com/300x200',
+            column2Alt: 'Right Image',
+            column2MaxWidth: '300',
+            column2Align: 'center',
+            column2BorderRadius: '0px',
             column1Width: '50%',
             column2Width: '50%',
             padding: '20px',
@@ -297,6 +309,34 @@ export const componentDefinitions = {
             const col1Width = data.column1Width || '50%';
             const col2Width = data.column2Width || '50%';
             const margin = data.margin || '0px';
+            const column1Type = data.column1Type || 'html';
+            const column2Type = data.column2Type || 'html';
+            
+            // Render column 1 content
+            let column1HTML = '';
+            if (column1Type === 'image') {
+                column1HTML = `
+                    <img src="${data.column1Src || 'https://via.placeholder.com/300x200'}" 
+                         alt="${data.column1Alt || 'Left Image'}" 
+                         width="${data.column1MaxWidth || '300'}" 
+                         style="max-width: 100%; height: auto; border-radius: ${data.column1BorderRadius || '0px'}; display: block;" />
+                `;
+            } else {
+                column1HTML = resetParagraphMargins(data.column1Content) || '<p style="margin: 0;">Left column content</p>';
+            }
+            
+            // Render column 2 content
+            let column2HTML = '';
+            if (column2Type === 'image') {
+                column2HTML = `
+                    <img src="${data.column2Src || 'https://via.placeholder.com/300x200'}" 
+                         alt="${data.column2Alt || 'Right Image'}" 
+                         width="${data.column2MaxWidth || '300'}" 
+                         style="max-width: 100%; height: auto; border-radius: ${data.column2BorderRadius || '0px'}; display: block;" />
+                `;
+            } else {
+                column2HTML = resetParagraphMargins(data.column2Content) || '<p style="margin: 0;">Right column content</p>';
+            }
             
             return `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
@@ -307,11 +347,11 @@ export const componentDefinitions = {
                                     <td style="padding: ${data.padding || '20px'};">
                                         <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                             <tr>
-                                                <td width="${col1Width}" valign="top" style="padding-right: ${gap};">
-                                                    ${resetParagraphMargins(data.column1Content) || '<p style="margin: 0;">Left column content</p>'}
+                                                <td width="${col1Width}" valign="top" style="padding-right: ${gap};" align="${column1Type === 'image' ? (data.column1Align || 'center') : 'left'}">
+                                                    ${column1HTML}
                                                 </td>
-                                                <td width="${col2Width}" valign="top" style="padding-left: ${gap};">
-                                                    ${resetParagraphMargins(data.column2Content) || '<p style="margin: 0;">Right column content</p>'}
+                                                <td width="${col2Width}" valign="top" style="padding-left: ${gap};" align="${column2Type === 'image' ? (data.column2Align || 'center') : 'left'}">
+                                                    ${column2HTML}
                                                 </td>
                                             </tr>
                                         </table>

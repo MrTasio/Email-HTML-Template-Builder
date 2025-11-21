@@ -412,21 +412,122 @@ class PropertiesManager {
                 break;
                 
             case 'twoColumns':
+                const column1Type = currentData.column1Type || 'html';
+                const column2Type = currentData.column2Type || 'html';
+                
                 fields.push({
                     label: 'Two Columns',
                     fields: [
                         {
+                            type: 'select',
+                            key: 'column1Type',
+                            label: 'Left Column Type',
+                            value: column1Type,
+                            options: [
+                                { value: 'html', label: 'HTML Content' },
+                                { value: 'image', label: 'Image' }
+                            ]
+                        },
+                        // Left column - HTML fields
+                        ...(column1Type === 'html' ? [{
                             type: 'textarea',
                             key: 'column1Content',
-                            label: 'Left Column Content',
+                            label: 'Left Column HTML Content',
                             value: currentData.column1Content || ''
-                        },
+                        }] : []),
+                        // Left column - Image fields
+                        ...(column1Type === 'image' ? [
+                            {
+                                type: 'text',
+                                key: 'column1Src',
+                                label: 'Left Image URL',
+                                value: currentData.column1Src || 'https://via.placeholder.com/300x200'
+                            },
+                            {
+                                type: 'text',
+                                key: 'column1Alt',
+                                label: 'Left Image Alt Text',
+                                value: currentData.column1Alt || 'Left Image'
+                            },
+                            {
+                                type: 'text',
+                                key: 'column1MaxWidth',
+                                label: 'Left Image Max Width (px)',
+                                value: currentData.column1MaxWidth || '300'
+                            },
+                            {
+                                type: 'select',
+                                key: 'column1Align',
+                                label: 'Left Image Align',
+                                value: currentData.column1Align || 'center',
+                                options: [
+                                    { value: 'left', label: 'Left' },
+                                    { value: 'center', label: 'Center' },
+                                    { value: 'right', label: 'Right' }
+                                ]
+                            },
+                            {
+                                type: 'text',
+                                key: 'column1BorderRadius',
+                                label: 'Left Image Border Radius (px)',
+                                value: currentData.column1BorderRadius || '0px'
+                            }
+                        ] : []),
                         {
+                            type: 'select',
+                            key: 'column2Type',
+                            label: 'Right Column Type',
+                            value: column2Type,
+                            options: [
+                                { value: 'html', label: 'HTML Content' },
+                                { value: 'image', label: 'Image' }
+                            ]
+                        },
+                        // Right column - HTML fields
+                        ...(column2Type === 'html' ? [{
                             type: 'textarea',
                             key: 'column2Content',
-                            label: 'Right Column Content',
+                            label: 'Right Column HTML Content',
                             value: currentData.column2Content || ''
-                        },
+                        }] : []),
+                        // Right column - Image fields
+                        ...(column2Type === 'image' ? [
+                            {
+                                type: 'text',
+                                key: 'column2Src',
+                                label: 'Right Image URL',
+                                value: currentData.column2Src || 'https://via.placeholder.com/300x200'
+                            },
+                            {
+                                type: 'text',
+                                key: 'column2Alt',
+                                label: 'Right Image Alt Text',
+                                value: currentData.column2Alt || 'Right Image'
+                            },
+                            {
+                                type: 'text',
+                                key: 'column2MaxWidth',
+                                label: 'Right Image Max Width (px)',
+                                value: currentData.column2MaxWidth || '300'
+                            },
+                            {
+                                type: 'select',
+                                key: 'column2Align',
+                                label: 'Right Image Align',
+                                value: currentData.column2Align || 'center',
+                                options: [
+                                    { value: 'left', label: 'Left' },
+                                    { value: 'center', label: 'Center' },
+                                    { value: 'right', label: 'Right' }
+                                ]
+                            },
+                            {
+                                type: 'text',
+                                key: 'column2BorderRadius',
+                                label: 'Right Image Border Radius (px)',
+                                value: currentData.column2BorderRadius || '0px'
+                            }
+                        ] : []),
                         {
                             type: 'text',
                             key: 'column1Width',
@@ -741,6 +842,13 @@ class PropertiesManager {
                 // For other inputs (select, checkbox, number, range), bind change events
                 input.addEventListener('change', () => {
                     this.handleFieldChange(fieldDef.key, input);
+                    
+                    // If column type changed, refresh the panel to show/hide relevant fields
+                    if (fieldDef.key === 'column1Type' || fieldDef.key === 'column2Type') {
+                        setTimeout(() => {
+                            this.updatePanel();
+                        }, 50);
+                    }
                 });
             }
             
