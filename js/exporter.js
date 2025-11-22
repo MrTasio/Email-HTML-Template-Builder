@@ -61,7 +61,7 @@ class EmailExporter {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>${subject}</title>
     <!--[if mso]>
@@ -76,11 +76,14 @@ class EmailExporter {
             padding: 0;
             -webkit-text-size-adjust: 100%;
             -ms-text-size-adjust: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         table {
             border-collapse: collapse;
             mso-table-lspace: 0pt;
             mso-table-rspace: 0pt;
+            table-layout: auto;
         }
         img {
             border: 0;
@@ -93,6 +96,18 @@ class EmailExporter {
         
         /* Responsive styles */
         @media only screen and (max-width: 600px) {
+            html {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow-x: hidden !important;
+            }
+            body {
+                width: 100% !important;
+                max-width: 100% !important;
+                overflow-x: hidden !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
             .email-container {
                 width: 100% !important;
                 max-width: 100% !important;
@@ -115,6 +130,36 @@ class EmailExporter {
                 padding-left: 0 !important;
                 padding-right: 0 !important;
             }
+            /* Force all tables to wrap on mobile */
+            table {
+                width: 100% !important;
+                max-width: 100% !important;
+                table-layout: auto !important;
+            }
+            table[width] {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            td, th {
+                max-width: 100% !important;
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            /* Ensure text content wraps */
+            p, div, span, a, h1, h2, h3, h4, h5, h6 {
+                word-wrap: break-word !important;
+                overflow-wrap: break-word !important;
+            }
+            /* Ensure images don't overflow */
+            img {
+                max-width: 100% !important;
+                height: auto !important;
+                display: block !important;
+            }
+            /* Box sizing for better wrapping */
+            table, td, th {
+                box-sizing: border-box !important;
+            }
         }
     </style>
 </head>
@@ -124,7 +169,7 @@ class EmailExporter {
         <tr>
             <td align="center" style="padding: 20px 0;">
                 <!-- Email content container -->
-                <table role="presentation" class="email-container" cellspacing="0" cellpadding="0" border="0" width="${contentWidth}" style="max-width: ${contentWidth}; background-color: #ffffff; border-radius: 0;">
+                <table role="presentation" class="email-container" cellspacing="0" cellpadding="0" border="0" width="${contentWidth}" style="width: ${contentWidth}; max-width: 100%; background-color: #ffffff; border-radius: 0;">
                     <tr>
                         <td class="email-content" style="padding: 0;">
                             ${content}

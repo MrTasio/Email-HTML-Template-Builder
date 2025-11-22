@@ -564,7 +564,8 @@ class EmailBuilderApp {
         
         // Get preview HTML
         const html = emailExporter.exportHTML({
-            subject: 'Email Preview'
+            subject: 'Email Preview',
+            contentWidth: '600px' // Standard email width - CSS will make it responsive
         });
         
         // Create iframe
@@ -588,10 +589,59 @@ class EmailBuilderApp {
         previewFrame.className = `preview-frame ${this.previewMode}`;
         
         if (this.previewMode === 'mobile') {
+            // Set iframe dimensions for mobile
             iframe.style.width = '375px';
+            iframe.style.maxWidth = '375px';
+            iframe.style.minWidth = '375px';
+            iframe.style.height = '600px';
             iframe.style.transform = 'scale(1)';
+            iframe.style.overflow = 'hidden';
+            
+            // Wait for iframe to load, then apply mobile styles
+            setTimeout(() => {
+                if (iframeDoc.body) {
+                    iframeDoc.body.style.width = '375px';
+                    iframeDoc.body.style.maxWidth = '375px';
+                    iframeDoc.body.style.minWidth = '375px';
+                    iframeDoc.body.style.overflowX = 'hidden';
+                    iframeDoc.body.style.overflowY = 'auto';
+                    iframeDoc.body.style.margin = '0';
+                    iframeDoc.body.style.padding = '0';
+                    iframeDoc.body.style.boxSizing = 'border-box';
+                    
+                    // Force all tables to respect mobile width
+                    const tables = iframeDoc.querySelectorAll('table');
+                    tables.forEach(table => {
+                        table.style.maxWidth = '100%';
+                        table.style.width = '100%';
+                        const widthAttr = table.getAttribute('width');
+                        if (widthAttr && !widthAttr.includes('%')) {
+                            table.style.width = '100%';
+                        }
+                    });
+                    
+                    // Force all table cells to wrap
+                    const cells = iframeDoc.querySelectorAll('td, th');
+                    cells.forEach(cell => {
+                        cell.style.maxWidth = '100%';
+                        const widthAttr = cell.getAttribute('width');
+                        if (widthAttr && !widthAttr.includes('%')) {
+                            cell.style.width = 'auto';
+                        }
+                    });
+                    
+                    // Ensure email container respects mobile width
+                    const emailContainer = iframeDoc.querySelector('.email-container');
+                    if (emailContainer) {
+                        emailContainer.style.width = '100%';
+                        emailContainer.style.maxWidth = '100%';
+                    }
+                }
+            }, 100);
         } else {
             iframe.style.width = '700px';
+            iframe.style.maxWidth = '700px';
+            iframe.style.minWidth = '700px';
             iframe.style.transform = 'scale(1)';
         }
     }

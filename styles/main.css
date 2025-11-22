@@ -944,12 +944,23 @@ body {
 
 .preview-frame.mobile {
     width: 375px;
+    margin: 0 auto;
 }
 
 .preview-frame iframe {
     width: 100%;
+    max-width: 100%;
     border: none;
     display: block;
+    overflow-x: hidden;
+}
+
+.preview-frame.mobile iframe {
+    width: 375px;
+    max-width: 375px;
+    min-width: 375px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 /* Templates Modal */
