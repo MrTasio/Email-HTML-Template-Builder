@@ -41,12 +41,165 @@ class EmailBuilderApp {
         this.initModals();
         this.initKeyboardShortcuts();
         
+        // Load initial blocks if canvas is empty
+        this.loadInitialBlocks();
+        
         // Render initial state
         canvasManager.render();
         propertiesManager.updatePanel();
         
         this.initialized = true;
         console.log('✅ Email Builder initialized');
+    }
+
+    /**
+     * Load initial blocks for platform overview
+     * Only loads if canvas is empty (no existing blocks)
+     */
+    loadInitialBlocks() {
+        const blocks = emailModel.getAllBlocks();
+        
+        // Only load initial blocks if canvas is empty
+        if (blocks.length === 0) {
+            const initialBlocks = this.createInitialBlocks();
+            const baseTime = Date.now();
+            
+            // Load all blocks at once by directly setting them in the model
+            // This avoids creating multiple undo states
+            initialBlocks.forEach((block, index) => {
+                // Generate unique ID for each block with slight time offset
+                const id = `block-${baseTime + index}-${Math.random().toString(36).substr(2, 9)}`;
+                emailModel.blocks.push({
+                    id,
+                    type: block.type,
+                    data: { ...block.data }
+                });
+            });
+            
+            // Save current state once after loading all blocks
+            emailModel.saveState();
+            
+            // Notify listeners that blocks have changed
+            emailModel.notifyListeners('blocksChanged');
+            
+            console.log('📦 Initial blocks loaded');
+        }
+    }
+
+    /**
+     * Create initial blocks for platform overview
+     * @returns {Array} - Array of block objects
+     */
+    createInitialBlocks() {
+        return [
+            {
+                type: 'heading',
+                data: {
+                    text: 'Welcome to Our Platform',
+                    level: 'h1',
+                    fontSize: 32,
+                    fontFamily: 'Arial, sans-serif',
+                    color: '#300146',
+                    textAlign: 'center',
+                    padding: '20px',
+                    margin: '0px',
+                    backgroundColor: '#ffffff'
+                }
+            },
+            {
+                type: 'text',
+                data: {
+                    content: '<p style="margin: 0;">We\'re excited to have you here! Our platform provides powerful tools to help you create stunning email templates with ease.</p>',
+                    fontSize: 16,
+                    fontFamily: 'Arial, sans-serif',
+                    color: '#000000',
+                    lineHeight: 1.6,
+                    textAlign: 'center',
+                    padding: '20px',
+                    margin: '0px',
+                    backgroundColor: '#ffffff'
+                }
+            },
+            {
+                type: 'spacer',
+                data: {
+                    height: '20px',
+                    padding: '0px',
+                    margin: '0px',
+                    backgroundColor: '#ffffff'
+                }
+            },
+            {
+                type: 'heading',
+                data: {
+                    text: 'Key Features',
+                    level: 'h2',
+                    fontSize: 24,
+                    fontFamily: 'Arial, sans-serif',
+                    color: '#300146',
+                    textAlign: 'left',
+                    padding: '20px 20px 10px 20px',
+                    margin: '0px',
+                    backgroundColor: '#ffffff'
+                }
+            },
+            {
+                type: 'text',
+                data: {
+                    content: '<p style="margin: 0;"><strong>📝 Drag & Drop Builder:</strong> Easily create professional email templates by dragging components onto the canvas.</p><p style="margin: 10px 0 0 0;"><strong>🎨 Customizable Components:</strong> Text blocks, headings, images, buttons, and more - all fully customizable.</p><p style="margin: 10px 0 0 0;"><strong>👁️ Live Preview:</strong> See how your email looks on desktop and mobile devices before sending.</p><p style="margin: 10px 0 0 0;"><strong>💾 Save & Export:</strong> Save your templates and export them as HTML for use in your email campaigns.</p>',
+                    fontSize: 16,
+                    fontFamily: 'Arial, sans-serif',
+                    color: '#000000',
+                    lineHeight: 1.6,
+                    textAlign: 'left',
+                    padding: '10px 20px 20px 20px',
+                    margin: '0px',
+                    backgroundColor: '#ffffff'
+                }
+            },
+            {
+                type: 'spacer',
+                data: {
+                    height: '20px',
+                    padding: '0px',
+                    margin: '0px',
+                    backgroundColor: '#ffffff'
+                }
+            },
+            {
+                type: 'divider',
+                data: {
+                    color: '#e2e8f0',
+                    height: '1px',
+                    padding: '20px',
+                    margin: '0px',
+                    backgroundColor: '#ffffff'
+                }
+            },
+            {
+                type: 'text',
+                data: {
+                    content: '<p style="margin: 0;">Start building your email template by dragging components from the left sidebar onto the canvas. Click on any block to edit its properties in the right panel.</p>',
+                    fontSize: 16,
+                    fontFamily: 'Arial, sans-serif',
+                    color: '#64748b',
+                    lineHeight: 1.6,
+                    textAlign: 'center',
+                    padding: '20px',
+                    margin: '0px',
+                    backgroundColor: '#ffffff'
+                }
+            },
+            {
+                type: 'spacer',
+                data: {
+                    height: '40px',
+                    padding: '0px',
+                    margin: '0px',
+                    backgroundColor: '#ffffff'
+                }
+            }
+        ];
     }
 
     /**

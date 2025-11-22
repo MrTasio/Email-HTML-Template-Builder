@@ -20,6 +20,7 @@ class CanvasManager {
         this.canvas = null;
         this.emptyState = null;
         this.sortableInstance = null;
+        this.rowSortableInstances = new Map(); // Track sortable instances for each row
         this.dragDropHandlers = {
             componentsList: {
                 dragstart: null,
@@ -107,12 +108,20 @@ class CanvasManager {
         const fragment = document.createDocumentFragment();
         
         blocks.forEach(block => {
-            const blockElement = this.createBlockElement(block);
-            fragment.appendChild(blockElement);
+            // Only render top-level blocks (not nested ones)
+            if (!block.parentId) {
+                const blockElement = this.createBlockElement(block);
+                fragment.appendChild(blockElement);
+            }
         });
         
         this.canvas.innerHTML = '';
         this.canvas.appendChild(fragment);
+        
+        // Setup sortable for rows after rendering
+        setTimeout(() => {
+            this.setupRowSortables();
+        }, 0);
     }
 
     /**
@@ -169,11 +178,47 @@ class CanvasManager {
         content.className = 'canvas-block-content';
         content.innerHTML = this.renderBlockPreview(block);
         
-        // Click to select
+        // For row components, make the content area a drop zone
+        if (block.type === 'row') {
+            content.classList.add('row-drop-zone');
+            content.dataset.rowId = block.id;
+            this.setupRowDropZone(content, block.id);
+        }
+        
+        // Click to select (but not if clicking on child blocks)
         wrapper.onclick = (e) => {
             if (e.target.closest('.canvas-block-controls')) return;
+            // Don't select row if clicking on a child block
+            if (block.type === 'row' && e.target.closest('.row-child-block')) {
+                const childBlockElement = e.target.closest('.row-child-block');
+                const childBlockId = childBlockElement?.dataset.childBlockId;
+                if (childBlockId) {
+                    // Stop event propagation to prevent row selection
+                    e.stopPropagation();
+                    this.selectBlock(childBlockId);
+                    return;
+                }
+            }
             this.selectBlock(block.id);
         };
+        
+        // Add click handler to child blocks directly (using event delegation)
+        if (block.type === 'row') {
+            const rowContent = wrapper.querySelector('.row-children');
+            if (rowContent) {
+                // Use event delegation for dynamically added children
+                rowContent.addEventListener('click', (e) => {
+                    const childBlock = e.target.closest('.row-child-block');
+                    if (childBlock) {
+                        e.stopPropagation();
+                        const childBlockId = childBlock.dataset.childBlockId;
+                        if (childBlockId) {
+                            this.selectBlock(childBlockId);
+                        }
+                    }
+                });
+            }
+        }
         
         wrapper.appendChild(controls);
         wrapper.appendChild(content);
@@ -182,11 +227,111 @@ class CanvasManager {
     }
 
     /**
+     * Setup drop zone for row component
+     */
+    setupRowDropZone(rowContentElement, rowId) {
+        rowContentElement.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.dataTransfer.dropEffect = 'copy';
+            rowContentElement.classList.add('row-drop-zone-active');
+        });
+        
+        rowContentElement.addEventListener('dragleave', (e) => {
+            if (!rowContentElement.contains(e.relatedTarget)) {
+                rowContentElement.classList.remove('row-drop-zone-active');
+            }
+        });
+        
+        rowContentElement.addEventListener('drop', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            rowContentElement.classList.remove('row-drop-zone-active');
+            
+            const componentType = e.dataTransfer.getData('componentType');
+            const savedBlockId = e.dataTransfer.getData('savedBlockId');
+            
+            if (savedBlockId) {
+                this.addSavedBlockToRow(savedBlockId, rowId);
+            } else if (componentType) {
+                this.addBlockToRow(componentType, rowId);
+            }
+        });
+    }
+
+    /**
+     * Add block to row from sidebar
+     */
+    addBlockToRow(componentType, rowId) {
+        const component = getComponent(componentType);
+        if (!component) {
+            console.error('Component not found:', componentType);
+            return;
+        }
+        
+        const blockId = emailModel.addBlock({
+            type: componentType,
+            data: { ...component.defaultData }
+        }, rowId);
+        
+        // Select the newly added block
+        emailModel.selectBlock(blockId);
+    }
+
+    /**
+     * Add saved block to row from library
+     */
+    addSavedBlockToRow(savedBlockId, rowId) {
+        const savedBlock = storageManager.getSavedBlock(savedBlockId);
+        if (!savedBlock) {
+            console.error('Saved block not found:', savedBlockId);
+            return;
+        }
+        
+        const blockId = emailModel.addBlock({
+            type: savedBlock.type,
+            data: { ...savedBlock.data }
+        }, rowId);
+        
+        // Select the newly added block
+        emailModel.selectBlock(blockId);
+    }
+
+    /**
      * Render block preview (shows what it will look like in email)
      */
     renderBlockPreview(block) {
         const component = getComponent(block.type);
         if (!component) return '';
+        
+        // Handle row component with nested children
+        if (block.type === 'row') {
+            const childBlocks = emailModel.getChildBlocks(block.id);
+            if (childBlocks && childBlocks.length > 0) {
+                // Render children in a sortable container
+                const childrenHTML = childBlocks.map(childBlock => {
+                    const childPreview = this.renderBlockPreview(childBlock);
+                    return `<div class="row-child-block" data-child-block-id="${childBlock.id}" draggable="true">${childPreview}</div>`;
+                }).join('');
+                
+                // Create a wrapper for the row content
+                const gap = block.data.gap || '20px';
+                return `
+                    <div class="row-container" style="background-color: ${block.data.backgroundColor || '#ffffff'}; padding: ${block.data.padding || '20px'};">
+                        <div class="row-children" data-row-id="${block.id}" style="display: flex; flex-direction: column; gap: ${gap};">
+                            ${childrenHTML}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Empty row - show drop zone
+                return `
+                    <div class="row-container row-empty" style="background-color: ${block.data.backgroundColor || '#ffffff'}; padding: ${block.data.padding || '20px'}; min-height: 100px; display: flex; align-items: center; justify-content: center; border: 2px dashed #cbd5e1;">
+                        <p style="margin: 0; color: #94a3b8; font-size: 14px;">Drop components here</p>
+                    </div>
+                `;
+            }
+        }
         
         // Use the email HTML template for preview
         return component.htmlTemplate(block.data);
@@ -207,9 +352,22 @@ class CanvasManager {
         
         const selectedBlock = emailModel.getSelectedBlock();
         const blockElements = this.canvas.querySelectorAll('.canvas-block');
+        const childBlockElements = this.canvas.querySelectorAll('.row-child-block');
         
+        // Update top-level block selection
         blockElements.forEach(el => {
             if (el.dataset.blockId === selectedBlock?.id) {
+                el.classList.add('selected');
+                // Scroll into view
+                el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                el.classList.remove('selected');
+            }
+        });
+        
+        // Update child block selection (inside rows)
+        childBlockElements.forEach(el => {
+            if (el.dataset.childBlockId === selectedBlock?.id) {
                 el.classList.add('selected');
                 // Scroll into view
                 el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -328,6 +486,11 @@ class CanvasManager {
                 // Reset canvas styling
                 this.canvas.style.borderColor = '';
                 this.canvas.style.backgroundColor = '';
+                
+                // Check if dropping into a row (handled by row drop zone)
+                if (e.target.closest('.row-drop-zone')) {
+                    return; // Row drop zone handles it
+                }
                 
                 const componentType = e.dataTransfer.getData('componentType');
                 const savedBlockId = e.dataTransfer.getData('savedBlockId');
@@ -470,19 +633,67 @@ class CanvasManager {
         
         if (!this.canvas || this.canvas.children.length === 0) return;
         
-        // Initialize Sortable
+        // Initialize Sortable for top-level canvas
         this.sortableInstance = new Sortable(this.canvas, {
             animation: 150,
             handle: '.canvas-block', // Can drag from anywhere on block
             ghostClass: 'sortable-ghost',
             chosenClass: 'sortable-chosen',
             dragClass: 'sortable-drag',
+            filter: '.row-children, .row-child-block', // Don't sort row children here
             onEnd: (evt) => {
-                // Update model order
+                // Only handle top-level blocks
                 const blockId = evt.item.dataset.blockId;
-                const newIndex = evt.newIndex;
-                emailModel.moveBlock(blockId, newIndex);
+                if (blockId) {
+                    const newIndex = evt.newIndex;
+                    emailModel.moveBlock(blockId, newIndex);
+                }
             }
+        });
+        
+        // Setup Sortable for each row's children
+        this.setupRowSortables();
+    }
+
+    /**
+     * Setup Sortable.js for row children
+     */
+    setupRowSortables() {
+        // Destroy existing row sortable instances
+        this.rowSortableInstances.forEach((instance, rowId) => {
+            if (instance) {
+                instance.destroy();
+            }
+        });
+        this.rowSortableInstances.clear();
+        
+        // Find all row children containers
+        const rowChildrenContainers = this.canvas.querySelectorAll('.row-children');
+        
+        rowChildrenContainers.forEach(container => {
+            const rowId = container.dataset.rowId;
+            if (!rowId) return;
+            
+            // Initialize Sortable for this row's children
+            const sortableInstance = new Sortable(container, {
+                animation: 150,
+                handle: '.row-child-block', // Can drag from anywhere on child block
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                group: 'row-children', // Allow dragging between rows if needed
+                onEnd: (evt) => {
+                    // Update model order within the row
+                    const childBlockId = evt.item.dataset.childBlockId;
+                    if (childBlockId && rowId) {
+                        const newIndex = evt.newIndex;
+                        emailModel.moveBlock(childBlockId, newIndex, rowId);
+                    }
+                }
+            });
+            
+            // Store the instance
+            this.rowSortableInstances.set(rowId, sortableInstance);
         });
     }
 }

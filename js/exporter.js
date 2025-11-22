@@ -34,8 +34,12 @@ class EmailExporter {
         
         const blocks = emailModel.getAllBlocks();
         
-        // Build body HTML from blocks
-        const bodyHTML = blocks.map(block => renderBlockHTML(block)).join('\n');
+        // Build body HTML from blocks, handling nested blocks
+        const bodyHTML = blocks.map(block => {
+            return renderBlockHTML(block, (blockId) => {
+                return emailModel.getChildBlocks(blockId);
+            });
+        }).join('\n');
         
         // Wrap in complete email HTML structure
         const html = this.wrapEmailHTML(bodyHTML, {

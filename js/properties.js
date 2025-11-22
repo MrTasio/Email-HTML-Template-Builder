@@ -600,6 +600,27 @@ class PropertiesManager {
                     ]
                 });
                 break;
+                
+            case 'row':
+                fields.push({
+                    label: 'Row',
+                    fields: [
+                        {
+                            type: 'color',
+                            key: 'backgroundColor',
+                            label: 'Background Color',
+                            value: currentData.backgroundColor || '#ffffff'
+                        },
+                        {
+                            type: 'text',
+                            key: 'gap',
+                            label: 'Gap Between Components (e.g., 20px)',
+                            value: currentData.gap || '20px'
+                        },
+                        ...this.getSpacingFields(currentData)
+                    ]
+                });
+                break;
         }
         
         return fields;

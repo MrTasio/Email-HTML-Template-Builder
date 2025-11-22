@@ -589,6 +589,69 @@ body {
     pointer-events: none; /* Prevent interaction with email preview */
 }
 
+/* Row Component Styles */
+.row-drop-zone {
+    pointer-events: auto; /* Allow drop interactions */
+    min-height: 100px;
+    transition: all 0.2s ease;
+}
+
+.row-drop-zone.row-drop-zone-active {
+    background-color: rgba(37, 99, 235, 0.05);
+    border: 2px dashed var(--primary);
+    border-radius: 4px;
+}
+
+.row-container {
+    width: 100%;
+}
+
+.row-empty {
+    border: 2px dashed var(--gray-300) !important;
+    background-color: var(--gray-50) !important;
+}
+
+.row-children {
+    width: 100%;
+}
+
+.row-child-block {
+    width: 100%;
+    cursor: move;
+    position: relative;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    padding: 4px;
+    margin: -4px;
+}
+
+.row-child-block:hover {
+    border-color: var(--gray-300);
+    background-color: rgba(37, 99, 235, 0.02);
+}
+
+.row-child-block.selected {
+    border-color: var(--primary);
+    background-color: rgba(37, 99, 235, 0.05);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.row-child-block.sortable-ghost {
+    opacity: 0.4;
+    background-color: var(--gray-100);
+    border: 2px dashed var(--primary);
+}
+
+.row-child-block.sortable-chosen {
+    opacity: 0.8;
+    border-color: var(--primary);
+}
+
+.row-child-block.sortable-drag {
+    opacity: 0.5;
+}
+
 /* Drop Zone Indicator */
 .drop-zone {
     height: 40px;

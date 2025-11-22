@@ -409,6 +409,63 @@ export const componentDefinitions = {
                 </table>
             `;
         }
+    },
+
+    row: {
+        type: 'row',
+        label: 'Row',
+        icon: '📦',
+        description: 'Container for other components',
+        defaultData: {
+            padding: '20px',
+            margin: '0px',
+            backgroundColor: '#ffffff',
+            gap: '20px',
+            children: [] // Array of child block IDs
+        },
+        htmlTemplate: (data, childrenHTML = '') => {
+            const margin = data.margin || '0px';
+            const gap = data.gap || '20px';
+            
+            // For email HTML, render children in a table structure
+            // Each child is wrapped in a table row with gap as padding-bottom (except last)
+            if (childrenHTML) {
+                // Split children HTML and add gap spacing
+                // Since childrenHTML is already formatted, we'll wrap it in a table
+                return `
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                        <tr>
+                            <td>
+                                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                                    <tr>
+                                        <td style="padding: ${data.padding || '20px'};">
+                                            ${childrenHTML}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                `;
+            }
+            
+            // Empty row
+            return `
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                    <tr>
+                        <td>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                                <tr>
+                                    <td style="padding: ${data.padding || '20px'};">
+                                        &nbsp;
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
     }
 };
 
@@ -432,11 +489,38 @@ export function getAllComponents() {
 /**
  * Generate HTML for a block
  * @param {Object} block - Block object with type and data
+ * @param {Function} getChildBlocks - Optional function to get child blocks for nested rendering
  * @returns {string} - HTML string
  */
-export function renderBlockHTML(block) {
+export function renderBlockHTML(block, getChildBlocks = null) {
     const component = getComponent(block.type);
     if (!component) return '';
+    
+    // Handle row component with nested children
+    if (block.type === 'row' && getChildBlocks) {
+        const childBlocks = getChildBlocks(block.id);
+        if (childBlocks && childBlocks.length > 0) {
+            // Render each child block and join with gap spacing
+            const gap = block.data.gap || '20px';
+            const childrenHTML = childBlocks.map((childBlock, index) => {
+                const childHTML = renderBlockHTML(childBlock, getChildBlocks);
+                // For email HTML, wrap each child in a table with gap as padding-bottom (except last)
+                if (index < childBlocks.length - 1) {
+                    return `
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: ${gap};">
+                            <tr>
+                                <td>
+                                    ${childHTML}
+                                </td>
+                            </tr>
+                        </table>
+                    `;
+                }
+                return childHTML;
+            }).join('');
+            return component.htmlTemplate(block.data, childrenHTML);
+        }
+    }
     
     return component.htmlTemplate(block.data);
 }
