@@ -123,6 +123,31 @@ class PropertiesManager {
     }
 
     /**
+     * Get common layout fields (maxWidth and blockAlign)
+     */
+    getLayoutFields(currentData) {
+        return [
+            {
+                type: 'text',
+                key: 'maxWidth',
+                label: 'Max Width (e.g., 600px)',
+                value: currentData.maxWidth || '600px'
+            },
+            {
+                type: 'select',
+                key: 'blockAlign',
+                label: 'Block Alignment',
+                value: currentData.blockAlign || 'center',
+                options: [
+                    { value: 'left', label: 'Left' },
+                    { value: 'center', label: 'Center' },
+                    { value: 'right', label: 'Right' }
+                ]
+            }
+        ];
+    }
+
+    /**
      * Get field definitions for a block type
      */
     getFieldsForType(type, currentData) {
@@ -191,7 +216,8 @@ class PropertiesManager {
                             label: 'Background Color',
                             value: currentData.backgroundColor || '#ffffff'
                         },
-                        ...this.getSpacingFields(currentData)
+                        ...this.getSpacingFields(currentData),
+                        ...this.getLayoutFields(currentData)
                     ]
                 });
                 break;
@@ -246,7 +272,8 @@ class PropertiesManager {
                             label: 'Background Color',
                             value: currentData.backgroundColor || '#ffffff'
                         },
-                        ...this.getSpacingFields(currentData)
+                        ...this.getSpacingFields(currentData),
+                        ...this.getLayoutFields(currentData)
                     ]
                 });
                 break;
@@ -308,7 +335,8 @@ class PropertiesManager {
                             label: 'Full Width',
                             value: currentData.fullWidth || false
                         },
-                        ...this.getSpacingFields(currentData)
+                        ...this.getSpacingFields(currentData),
+                        ...this.getLayoutFields(currentData)
                     ]
                 });
                 break;
@@ -358,7 +386,8 @@ class PropertiesManager {
                             label: 'Background Color',
                             value: currentData.backgroundColor || '#ffffff'
                         },
-                        ...this.getSpacingFields(currentData)
+                        ...this.getSpacingFields(currentData),
+                        ...this.getLayoutFields(currentData)
                     ]
                 });
                 break;
@@ -385,7 +414,8 @@ class PropertiesManager {
                             label: 'Background Color',
                             value: currentData.backgroundColor || '#ffffff'
                         },
-                        ...this.getSpacingFields(currentData)
+                        ...this.getSpacingFields(currentData),
+                        ...this.getLayoutFields(currentData)
                     ]
                 });
                 break;
@@ -406,7 +436,8 @@ class PropertiesManager {
                             label: 'Background Color',
                             value: currentData.backgroundColor || '#ffffff'
                         },
-                        ...this.getSpacingFields(currentData)
+                        ...this.getSpacingFields(currentData),
+                        ...this.getLayoutFields(currentData)
                     ]
                 });
                 break;
@@ -552,7 +583,8 @@ class PropertiesManager {
                             label: 'Background Color',
                             value: currentData.backgroundColor || '#ffffff'
                         },
-                        ...this.getSpacingFields(currentData)
+                        ...this.getSpacingFields(currentData),
+                        ...this.getLayoutFields(currentData)
                     ]
                 });
                 break;
@@ -596,7 +628,8 @@ class PropertiesManager {
                             label: 'Background Color',
                             value: currentData.backgroundColor || '#f8fafc'
                         },
-                        ...this.getSpacingFields(currentData)
+                        ...this.getSpacingFields(currentData),
+                        ...this.getLayoutFields(currentData)
                     ]
                 });
                 break;
@@ -617,7 +650,8 @@ class PropertiesManager {
                             label: 'Gap Between Components (e.g., 20px)',
                             value: currentData.gap || '20px'
                         },
-                        ...this.getSpacingFields(currentData)
+                        ...this.getSpacingFields(currentData),
+                        ...this.getLayoutFields(currentData)
                     ]
                 });
                 break;

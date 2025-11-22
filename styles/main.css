@@ -637,6 +637,53 @@ body {
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 }
 
+.row-child-block-controls {
+    position: absolute;
+    top: -32px;
+    right: 0;
+    display: none;
+    gap: 4px;
+    background: var(--gray-800);
+    padding: 4px;
+    border-radius: 4px;
+    z-index: 100;
+    pointer-events: auto !important; /* Make controls clickable */
+}
+
+.row-child-block:hover .row-child-block-controls,
+.row-child-block.selected .row-child-block-controls {
+    display: flex;
+}
+
+.row-child-block-controls .block-control-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    pointer-events: auto !important; /* Make buttons clickable */
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.row-child-block-controls .block-control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.row-child-block-controls .block-control-btn:active {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.row-child-block-content {
+    pointer-events: none; /* Prevent interaction with email preview */
+}
+
 .row-child-block.sortable-ghost {
     opacity: 0.4;
     background-color: var(--gray-100);

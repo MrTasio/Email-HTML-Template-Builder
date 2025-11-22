@@ -397,7 +397,6 @@ class EmailModel {
         
         this.saveState();
         
-        const currentIndex = this.blocks.findIndex(b => b.id === blockId);
         const duplicatedBlock = {
             id: `block-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
             type: block.type,
@@ -428,14 +427,30 @@ class EmailModel {
         if (!this.allBlocksMap) this.allBlocksMap = {};
         this.allBlocksMap[duplicatedBlock.id] = duplicatedBlock;
         
-        // Insert after current block (only if it's a top-level block)
-        if (!block.parentId && currentIndex !== -1) {
-            this.blocks.splice(currentIndex + 1, 0, duplicatedBlock);
-        } else if (!block.parentId) {
-            // If not found in top-level, just add to end
-            this.blocks.push(duplicatedBlock);
+        // Handle placement based on whether it's nested or top-level
+        if (block.parentId) {
+            // It's a nested block - add to parent's children array
+            const parentBlock = this.getBlockById(block.parentId);
+            if (parentBlock && parentBlock.type === 'row' && parentBlock.data.children) {
+                const currentIndex = parentBlock.data.children.indexOf(blockId);
+                if (currentIndex !== -1) {
+                    // Insert after current block in parent's children array
+                    parentBlock.data.children.splice(currentIndex + 1, 0, duplicatedBlock.id);
+                } else {
+                    // If not found, just add to end
+                    parentBlock.data.children.push(duplicatedBlock.id);
+                }
+            }
+        } else {
+            // It's a top-level block
+            const currentIndex = this.blocks.findIndex(b => b.id === blockId);
+            if (currentIndex !== -1) {
+                this.blocks.splice(currentIndex + 1, 0, duplicatedBlock);
+            } else {
+                // If not found, just add to end
+                this.blocks.push(duplicatedBlock);
+            }
         }
-        // If it's a nested block, it will be added to parent's children array by the recursive call
         
         this.notifyListeners('blocksChanged');
         

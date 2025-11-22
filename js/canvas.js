@@ -44,12 +44,60 @@ class CanvasManager {
         // Setup drag and drop for blocks
         this.setupDragDrop();
         
+        // Setup global event delegation for row child block controls
+        this.setupRowChildControls();
+        
         // Listen for model changes
         emailModel.on('blocksChanged', () => this.render());
         emailModel.on('selectionChanged', () => this.updateSelection());
         
         // Deselect block when clicking outside canvas
         this.setupClickOutsideDeselect();
+    }
+
+    /**
+     * Setup event delegation for row child block controls
+     * This handles controls for blocks inside rows
+     */
+    setupRowChildControls() {
+        // Use event delegation on the canvas to handle all row child controls
+        if (this.canvas) {
+            this.canvas.addEventListener('click', (e) => {
+                // Check if clicking on a row child block control button
+                // Try multiple selectors to catch the button
+                let btn = e.target.closest('.row-child-block-controls .block-control-btn');
+                if (!btn) {
+                    // Maybe the button itself was clicked
+                    btn = e.target.closest('.block-control-btn');
+                    if (btn && btn.closest('.row-child-block-controls')) {
+                        // It's a row child control button
+                    } else {
+                        btn = null;
+                    }
+                }
+                
+                if (btn) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const action = btn.getAttribute('data-action') || btn.dataset.action;
+                    const blockId = btn.getAttribute('data-block-id') || btn.dataset.blockId;
+                    
+                    console.log('Row child control clicked:', { action, blockId, btn }); // Debug
+                    
+                    if (blockId && action) {
+                        if (action === 'duplicate') {
+                            this.duplicateBlock(blockId);
+                        } else if (action === 'save') {
+                            this.saveBlockToLibrary(blockId);
+                        } else if (action === 'delete') {
+                            console.log('Calling deleteBlock with:', blockId); // Debug
+                            this.deleteBlock(blockId);
+                        }
+                    }
+                    return false;
+                }
+            }, true); // Use capture phase to catch events earlier
+        }
     }
     
     /**
@@ -121,7 +169,56 @@ class CanvasManager {
         // Setup sortable for rows after rendering
         setTimeout(() => {
             this.setupRowSortables();
+            this.attachRowChildControls();
         }, 0);
+    }
+
+    /**
+     * Attach event handlers to row child block controls
+     */
+    attachRowChildControls() {
+        if (!this.canvas) return;
+        
+        // Find all row child block control buttons
+        const buttons = this.canvas.querySelectorAll('.row-child-block-controls .block-control-btn');
+        console.log('Found row child control buttons:', buttons.length); // Debug
+        
+        buttons.forEach((btn, index) => {
+            const action = btn.getAttribute('data-action');
+            const blockId = btn.getAttribute('data-block-id');
+            console.log(`Button ${index}:`, { action, blockId, element: btn }); // Debug
+            
+            // Remove any existing listeners by cloning
+            const newBtn = btn.cloneNode(true);
+            btn.parentNode.replaceChild(newBtn, btn);
+            
+            // Add click handler with mousedown as backup
+            const handleClick = (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                const action = newBtn.getAttribute('data-action');
+                const blockId = newBtn.getAttribute('data-block-id');
+                
+                console.log('Button clicked:', { action, blockId, event: e.type }); // Debug
+                
+                if (blockId && action) {
+                    if (action === 'duplicate') {
+                        this.duplicateBlock(blockId);
+                    } else if (action === 'save') {
+                        this.saveBlockToLibrary(blockId);
+                    } else if (action === 'delete') {
+                        console.log('Delete button clicked for block:', blockId); // Debug
+                        this.deleteBlock(blockId);
+                    }
+                }
+                return false;
+            };
+            
+            newBtn.addEventListener('click', handleClick, true);
+            newBtn.addEventListener('mousedown', (e) => {
+                e.stopPropagation();
+            }, true);
+        });
     }
 
     /**
@@ -202,22 +299,31 @@ class CanvasManager {
             this.selectBlock(block.id);
         };
         
-        // Add click handler to child blocks directly (using event delegation)
+        // Add click handler to child blocks for selection (controls handled globally)
         if (block.type === 'row') {
-            const rowContent = wrapper.querySelector('.row-children');
-            if (rowContent) {
-                // Use event delegation for dynamically added children
-                rowContent.addEventListener('click', (e) => {
-                    const childBlock = e.target.closest('.row-child-block');
-                    if (childBlock) {
-                        e.stopPropagation();
-                        const childBlockId = childBlock.dataset.childBlockId;
-                        if (childBlockId) {
-                            this.selectBlock(childBlockId);
+            // Use setTimeout to ensure DOM is ready
+            setTimeout(() => {
+                const rowContent = wrapper.querySelector('.row-children');
+                if (rowContent) {
+                    // Use event delegation for child block selection
+                    rowContent.addEventListener('click', (e) => {
+                        // Don't handle if clicking on controls (handled globally)
+                        if (e.target.closest('.row-child-block-controls')) {
+                            return;
                         }
-                    }
-                });
-            }
+                        
+                        // Handle child block selection
+                        const childBlock = e.target.closest('.row-child-block');
+                        if (childBlock) {
+                            e.stopPropagation();
+                            const childBlockId = childBlock.dataset.childBlockId;
+                            if (childBlockId) {
+                                this.selectBlock(childBlockId);
+                            }
+                        }
+                    });
+                }
+            }, 0);
         }
         
         wrapper.appendChild(controls);
@@ -311,7 +417,15 @@ class CanvasManager {
                 // Render children in a sortable container
                 const childrenHTML = childBlocks.map(childBlock => {
                     const childPreview = this.renderBlockPreview(childBlock);
-                    return `<div class="row-child-block" data-child-block-id="${childBlock.id}" draggable="true">${childPreview}</div>`;
+                    const blockId = childBlock.id;
+                    return `<div class="row-child-block" data-child-block-id="${blockId}" draggable="true">
+                        <div class="row-child-block-controls">
+                            <button type="button" class="block-control-btn" title="Duplicate" data-action="duplicate" data-block-id="${blockId}">📋</button>
+                            <button type="button" class="block-control-btn" title="Save to Library" data-action="save" data-block-id="${blockId}">💾</button>
+                            <button type="button" class="block-control-btn" title="Delete" data-action="delete" data-block-id="${blockId}">🗑️</button>
+                        </div>
+                        <div class="row-child-block-content">${childPreview}</div>
+                    </div>`;
                 }).join('');
                 
                 // Create a wrapper for the row content
@@ -381,11 +495,10 @@ class CanvasManager {
      * Duplicate a block
      */
     duplicateBlock(blockId) {
-        emailModel.duplicateBlock(blockId);
-        // Select the duplicated block
-        const newId = emailModel.getAllBlocks().find(b => b.id !== blockId)?.id;
-        if (newId) {
-            emailModel.selectBlock(newId);
+        const duplicatedId = emailModel.duplicateBlock(blockId);
+        if (duplicatedId) {
+            // Select the duplicated block
+            emailModel.selectBlock(duplicatedId);
         }
     }
 
@@ -393,6 +506,11 @@ class CanvasManager {
      * Delete a block
      */
     deleteBlock(blockId) {
+        console.log('deleteBlock called with:', blockId); // Debug
+        if (!blockId) {
+            console.error('No blockId provided to deleteBlock');
+            return;
+        }
         if (confirm('Delete this block?')) {
             emailModel.removeBlock(blockId);
         }

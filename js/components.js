@@ -68,15 +68,19 @@ export const componentDefinitions = {
             textAlign: 'left',
             padding: '20px',
             margin: '0px',
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            maxWidth: '600px',
+            blockAlign: 'center'
         },
         htmlTemplate: (data) => {
             const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
             return `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td>
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
                                 <tr>
                                     <td align="${data.textAlign || 'left'}" style="padding: ${data.padding || '20px'}; font-family: ${data.fontFamily || 'Arial, sans-serif'}; font-size: ${data.fontSize || 16}px; color: ${data.color || '#000000'}; line-height: ${data.lineHeight || 1.6};">
                                         ${resetParagraphMargins(data.content) || '<p style="margin: 0;">Enter your text here...</p>'}
@@ -104,17 +108,21 @@ export const componentDefinitions = {
             textAlign: 'left',
             padding: '20px',
             margin: '0px',
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            maxWidth: '600px',
+            blockAlign: 'center'
         },
         htmlTemplate: (data) => {
             const tag = data.level || 'h1';
             const fontSize = data.fontSize || 32;
             const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
             return `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td>
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
                                 <tr>
                                     <td align="${data.textAlign || 'left'}" style="padding: ${data.padding || '20px'};">
                                         <${tag} style="margin: 0; font-family: ${data.fontFamily || 'Arial, sans-serif'}; font-size: ${fontSize}px; color: ${data.color || '#000000'}; font-weight: bold; line-height: 1.2;">
@@ -145,18 +153,22 @@ export const componentDefinitions = {
             margin: '20px 0px',
             borderRadius: '4px',
             fullWidth: false,
-            align: 'left'
+            align: 'left',
+            maxWidth: '600px',
+            blockAlign: 'center'
         },
         htmlTemplate: (data) => {
             const width = data.fullWidth ? '100%' : 'auto';
             const display = data.fullWidth ? 'block' : 'inline-block';
             const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
             
             return `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td>
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%;">
                                 <tr>
                                     <td align="${data.align || 'left'}" style="padding: 20px;">
                                         <a href="${data.url || '#'}" 
@@ -187,20 +199,23 @@ export const componentDefinitions = {
             padding: '20px',
             margin: '0px',
             borderRadius: '0px',
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            blockAlign: 'center'
         },
         htmlTemplate: (data) => {
             const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
             return `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td>
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
                                 <tr>
                                     <td align="${data.align || 'center'}" style="padding: ${data.padding || '20px'};">
                                         <img src="${data.src || 'https://via.placeholder.com/600x300'}" 
                                              alt="${data.alt || 'Image'}" 
-                                             width="${data.maxWidth || '600'}" 
+                                             width="${maxWidth.replace('px', '')}" 
                                              style="max-width: 100%; height: auto; border-radius: ${data.borderRadius || '0px'}; display: block;" />
                                     </td>
                                 </tr>
@@ -222,15 +237,19 @@ export const componentDefinitions = {
             height: '1px',
             padding: '20px',
             margin: '0px',
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            maxWidth: '600px',
+            blockAlign: 'center'
         },
         htmlTemplate: (data) => {
             const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
             return `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td>
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
                                 <tr>
                                     <td align="center" style="padding: ${data.padding || '20px'};">
                                         <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -257,15 +276,19 @@ export const componentDefinitions = {
             height: '40px',
             padding: '0px',
             margin: '0px',
-            backgroundColor: '#ffffff'
+            backgroundColor: '#ffffff',
+            maxWidth: '600px',
+            blockAlign: 'center'
         },
         htmlTemplate: (data) => {
             const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
             return `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td>
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
                                 <tr>
                                     <td style="height: ${data.height || '40px'}; line-height: ${data.height || '40px'}; font-size: 1px; padding: ${data.padding || '0px'};">&nbsp;</td>
                                 </tr>
@@ -302,7 +325,9 @@ export const componentDefinitions = {
             padding: '20px',
             margin: '0px',
             backgroundColor: '#ffffff',
-            gap: '20px'
+            gap: '20px',
+            maxWidth: '600px',
+            blockAlign: 'center'
         },
         htmlTemplate: (data) => {
             const gap = data.gap || '20px';
@@ -338,11 +363,14 @@ export const componentDefinitions = {
                 column2HTML = resetParagraphMargins(data.column2Content) || '<p style="margin: 0;">Right column content</p>';
             }
             
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
+            
             return `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td>
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
                                 <tr>
                                     <td style="padding: ${data.padding || '20px'};">
                                         <table width="100%" cellpadding="0" cellspacing="0" border="0">
@@ -381,7 +409,9 @@ export const componentDefinitions = {
             textAlign: 'center',
             padding: '40px 20px',
             margin: '0px',
-            backgroundColor: '#f8fafc'
+            backgroundColor: '#f8fafc',
+            maxWidth: '600px',
+            blockAlign: 'center'
         },
         htmlTemplate: (data) => {
             let linksHtml = '';
@@ -391,12 +421,14 @@ export const componentDefinitions = {
                 ).join(' | ');
             }
             const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
             
             return `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td>
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#f8fafc'};">
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#f8fafc'};">
                                 <tr>
                                     <td align="${data.textAlign || 'center'}" style="padding: ${data.padding || '40px 20px'}; font-family: Arial, sans-serif; font-size: ${data.fontSize || 12}px; color: ${data.color || '#64748b'}; line-height: 1.6;">
                                         ${data.text || '© 2024 Your Company. All rights reserved.'}
@@ -421,11 +453,15 @@ export const componentDefinitions = {
             margin: '0px',
             backgroundColor: '#ffffff',
             gap: '20px',
+            maxWidth: '600px',
+            blockAlign: 'center',
             children: [] // Array of child block IDs
         },
         htmlTemplate: (data, childrenHTML = '') => {
             const margin = data.margin || '0px';
             const gap = data.gap || '20px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
             
             // For email HTML, render children in a table structure
             // Each child is wrapped in a table row with gap as padding-bottom (except last)
@@ -435,8 +471,8 @@ export const componentDefinitions = {
                 return `
                     <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                         <tr>
-                            <td>
-                                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                            <td align="${blockAlign}">
+                                <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
                                     <tr>
                                         <td style="padding: ${data.padding || '20px'};">
                                             ${childrenHTML}
@@ -453,8 +489,8 @@ export const componentDefinitions = {
             return `
                 <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
                     <tr>
-                        <td>
-                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${data.backgroundColor || '#ffffff'};">
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
                                 <tr>
                                     <td style="padding: ${data.padding || '20px'};">
                                         &nbsp;
