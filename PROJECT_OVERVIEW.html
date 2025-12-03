@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Template Builder - Project Overview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #e0e0e0;
+            background: #1a1a1a;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #333;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%);
+            color: white;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+
+        .header-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .header-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .content {
+            padding: 60px 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section h2 {
+            font-size: 2em;
+            color: #00ffff;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #00ffff;
+        }
+
+        .section h3 {
+            font-size: 1.5em;
+            color: #00bcd4;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        .section p {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #e0e0e0;
+        }
+
+        .image-container {
+            text-align: center;
+            margin: 40px 0;
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #404040;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: #2a2a2a;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #00ffff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #404040;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 255, 255, 0.2);
+            border-left-color: #00bcd4;
+        }
+
+        .feature-card h4 {
+            color: #00ffff;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .feature-card p {
+            color: #d0d0d0;
+            font-size: 1em;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .tech-badge {
+            background: #00bcd4;
+            color: #1a1a1a;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(0, 188, 212, 0.1) 0%, rgba(0, 255, 255, 0.1) 100%);
+            border-left: 4px solid #00ffff;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .highlight-box h4 {
+            color: #00ffff;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        ul {
+            margin-left: 25px;
+            margin-top: 15px;
+        }
+
+        ul li {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            color: #d0d0d0;
+        }
+
+        ul li strong {
+            color: #00bcd4;
+        }
+
+        .footer {
+            background: #2a2a2a;
+            padding: 40px;
+            text-align: center;
+            color: #b0b0b0;
+            border-top: 1px solid #404040;
+        }
+
+        .footer p {
+            font-size: 1.1em;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .content {
+                padding: 40px 20px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 Email Template Builder</h1>
+            <p>Professional Drag-and-Drop Email Template Creation Tool</p>
+            <a href="index.html" class="header-link">🚀 Launch Email Builder</a>
+        </div>
+
+        <div class="content">
+            <div class="section">
+                <h2>Project Overview</h2>
+                <p>
+                    We've developed a powerful, production-ready email template builder that enables users to create 
+                    professional email templates through an intuitive drag-and-drop interface. This tool generates 
+                    email-client-compatible HTML that works seamlessly across all major email clients including Gmail, 
+                    Outlook, Apple Mail, and more.
+                </p>
+                
+                <div class="image-container">
+                    <img src="email builder html.png" alt="Email Template Builder Interface">
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Key Features</h2>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <h4>🎨 Drag & Drop Interface</h4>
+                        <p>Intuitive canvas-based editor that makes building email templates as easy as dragging and dropping components.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>🧩 Component Library</h4>
+                        <p>Pre-built email components including text blocks, headings, images, buttons, dividers, spacers, and two-column layouts.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>⚡ Live Editing</h4>
+                        <p>Real-time property editing with instant preview. See your changes immediately as you make them.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📱 Responsive Preview</h4>
+                        <p>Desktop and mobile preview modes to ensure your emails look perfect on all devices.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>💾 Template Management</h4>
+                        <p>Save, load, duplicate, and manage unlimited templates with automatic thumbnail generation.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📚 Block Library</h4>
+                        <p>Save frequently used blocks (headers, footers, CTAs) for reuse across multiple templates.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>📥 Import/Export</h4>
+                        <p>Export templates as email-ready HTML or JSON files. Import existing templates to continue editing.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>↶ Undo/Redo</h4>
+                        <p>Full history tracking with keyboard shortcuts. Never lose your work with comprehensive undo/redo functionality.</p>
+                    </div>
+
+                    <div class="feature-card">
+                        <h4>🎯 Email-Safe HTML</h4>
+                        <p>Generates table-based, inline-styled HTML compatible with all email clients, following industry best practices.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Technical Implementation</h2>
+                
+                <div class="highlight-box">
+                    <h4>Architecture Highlights</h4>
+                    <ul>
+                        <li><strong>Modular Design:</strong> Clean separation of concerns with dedicated modules for data management, rendering, properties, and export</li>
+                        <li><strong>Event-Driven Architecture:</strong> Efficient communication between modules using custom events</li>
+                        <li><strong>JSON-Based Model:</strong> Templates stored as structured JSON data, not DOM elements, ensuring portability and easy manipulation</li>
+                        <li><strong>Dynamic Form Generation:</strong> Properties panel automatically generates form fields based on component type</li>
+                        <li><strong>Two-Way Data Binding:</strong> Seamless synchronization between the data model and user interface</li>
+                    </ul>
+                </div>
+
+                <h3>Technology Stack</h3>
+                <div class="tech-stack">
+                    <span class="tech-badge">Vanilla JavaScript (ES6 Modules)</span>
+                    <span class="tech-badge">Sortable.js</span>
+                    <span class="tech-badge">html2canvas</span>
+                    <span class="tech-badge">Pure CSS</span>
+                    <span class="tech-badge">HTML5</span>
+                    <span class="tech-badge">LocalStorage API</span>
+                </div>
+
+                <p style="margin-top: 20px; color: #e0e0e0;">
+                    The application is built with modern web technologies, using no frameworks or build tools, making it 
+                    lightweight, fast, and easy to maintain. All code is well-documented and follows best practices for 
+                    maintainability and scalability.
+                </p>
+            </div>
+
+            <div class="section">
+                <h2>Component Types</h2>
+                <p>The builder includes a comprehensive set of email components:</p>
+                <ul>
+                    <li><strong>Text Block:</strong> Rich text content with full formatting options (font family, size, color, line height)</li>
+                    <li><strong>Heading:</strong> H1-H6 headings with customizable styling</li>
+                    <li><strong>Button:</strong> Call-to-action buttons with customizable colors, text, and links</li>
+                    <li><strong>Image:</strong> Single images with alignment options, border radius, and max width controls</li>
+                    <li><strong>Divider:</strong> Horizontal line separators for visual organization</li>
+                    <li><strong>Spacer:</strong> Vertical spacing blocks for precise layout control</li>
+                    <li><strong>Two Columns:</strong> Side-by-side content supporting both HTML and image content in each column</li>
+                    <li><strong>Footer:</strong> Pre-configured email footer blocks</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>Advanced Capabilities</h2>
+                
+                <h3>Email Compatibility</h3>
+                <p>
+                    The exported HTML follows email development best practices:
+                </p>
+                <ul>
+                    <li>Uses tables for layout (not divs, flexbox, or grid)</li>
+                    <li>All styles are inline (no external CSS files)</li>
+                    <li>Web-safe fonts with proper fallbacks</li>
+                    <li>Responsive design using media queries</li>
+                    <li>Compatible with Gmail, Outlook, Apple Mail, Yahoo Mail, and more</li>
+                </ul>
+
+                <h3>User Experience Features</h3>
+                <ul>
+                    <li><strong>Auto-Save:</strong> Automatic saving after 2 minutes of inactivity</li>
+                    <li><strong>Keyboard Shortcuts:</strong> Undo (Ctrl+Z), Redo (Ctrl+Y), Duplicate (Ctrl+D), Delete (Delete key)</li>
+                    <li><strong>Visual Feedback:</strong> Clear selection states, hover effects, and drag indicators</li>
+                    <li><strong>Template Thumbnails:</strong> Visual previews of saved templates for easy identification</li>
+                    <li><strong>Copy to Clipboard:</strong> One-click HTML export to clipboard for quick integration</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>Project Structure</h2>
+                <p>
+                    The project is organized into clean, maintainable modules:
+                </p>
+                <ul>
+                    <li><strong>app.js:</strong> Main application orchestrator and entry point</li>
+                    <li><strong>model.js:</strong> Data model and state management</li>
+                    <li><strong>components.js:</strong> Component library with email HTML templates</li>
+                    <li><strong>canvas.js:</strong> Canvas rendering and drag-and-drop functionality</li>
+                    <li><strong>properties.js:</strong> Dynamic properties panel with form generation</li>
+                    <li><strong>exporter.js:</strong> Email HTML export engine</li>
+                    <li><strong>storage.js:</strong> LocalStorage management for templates and blocks</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>Deliverables</h2>
+                <div class="highlight-box">
+                    <h4>Complete Application Package</h4>
+                    <ul>
+                        <li>Fully functional email template builder application</li>
+                        <li>Comprehensive documentation (README, Quick Start Guide, Learning Guide)</li>
+                        <li>Email HTML cheatsheet for reference</li>
+                        <li>Well-documented, maintainable source code</li>
+                        <li>No external dependencies required (uses CDN for libraries)</li>
+                        <li>Ready to deploy - works with any static file server</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Email Template Builder</strong> - Professional Email Template Creation Tool</p>
+            <p style="margin-top: 10px; font-size: 0.95em; color: #b0b0b0;">Built with modern web technologies • Production-ready • Client-compatible</p>
+            <a href="index.html" style="display: inline-block; margin-top: 20px; padding: 12px 30px; background: #00bcd4; color: #1a1a1a; text-decoration: none; border-radius: 6px; font-weight: 600; transition: all 0.3s ease;">Try the Email Builder →</a>
+        </div>
+    </div>
+</body>
+</html>
