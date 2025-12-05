@@ -12,7 +12,6 @@
  * - Handle keyboard shortcuts
  */
 
-import { inject } from '@vercel/analytics';
 import { emailModel } from './model.js';
 import { canvasManager } from './canvas.js';
 import { propertiesManager } from './properties.js';
@@ -33,9 +32,6 @@ class EmailBuilderApp {
      */
     init() {
         if (this.initialized) return;
-        
-        // Initialize Vercel Web Analytics
-        inject();
         
         // Initialize managers
         this.initCanvas();
