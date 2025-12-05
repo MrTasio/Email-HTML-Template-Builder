@@ -1,0 +1,563 @@
+/**
+ * ========================================
+ * Component Library
+ * ========================================
+ * 
+ * This module defines all available email components.
+ * Each component includes:
+ * - type: unique identifier
+ * - label: display name
+ * - icon: emoji or symbol
+ * - description: help text
+ * - defaultData: default properties
+ * - htmlTemplate: function to generate email-safe HTML
+ * 
+ * IMPORTANT: Email HTML must use:
+ * - Tables for layout (not divs)
+ * - Inline styles (no external CSS)
+ * - Limited CSS support (no flexbox, grid, etc.)
+ * - Web-safe fonts
+ */
+
+/**
+ * Reset paragraph margins in HTML content
+ * Adds inline margin: 0 to all <p> tags
+ */
+function resetParagraphMargins(html) {
+    if (!html) return html;
+    
+    // Handle <p> tags that already have a style attribute
+    html = html.replace(/<p\s+style="([^"]*)"/gi, (match, existingStyle) => {
+        // Remove any existing margin properties
+        let cleanedStyle = existingStyle.replace(/margin[^;]*;?/gi, '').trim();
+        // Remove multiple semicolons/spaces
+        cleanedStyle = cleanedStyle.replace(/;\s*;/g, ';').trim();
+        // Add margin: 0
+        const separator = cleanedStyle && !cleanedStyle.endsWith(';') ? '; ' : '';
+        return `<p style="${cleanedStyle}${separator}margin: 0;"`;
+    });
+    
+    // Handle <p> tags without style attribute (but may have other attributes)
+    html = html.replace(/<p(\s+[^>]*)?>/gi, (match, attrs) => {
+        if (match.includes('style=')) {
+            return match; // Already handled above
+        }
+        // Add style attribute
+        return `<p style="margin: 0;"${attrs || ''}>`;
+    });
+    
+    return html;
+}
+
+/**
+ * Component Definitions
+ * Each component has a template function that generates email-safe HTML
+ */
+export const componentDefinitions = {
+    text: {
+        type: 'text',
+        label: 'Text Block',
+        icon: '📝',
+        description: 'Rich text content',
+        defaultData: {
+            content: '<p style="margin: 0;">Enter your text here...</p>',
+            fontSize: 16,
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            lineHeight: 1.6,
+            textAlign: 'left',
+            padding: '20px',
+            margin: '0px',
+            backgroundColor: '#ffffff',
+            maxWidth: '600px',
+            blockAlign: 'center'
+        },
+        htmlTemplate: (data) => {
+            const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
+            return `
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                    <tr>
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
+                                <tr>
+                                    <td align="${data.textAlign || 'left'}" style="padding: ${data.padding || '20px'}; font-family: ${data.fontFamily || 'Arial, sans-serif'}; font-size: ${data.fontSize || 16}px; color: ${data.color || '#000000'}; line-height: ${data.lineHeight || 1.6};">
+                                        ${resetParagraphMargins(data.content) || '<p style="margin: 0;">Enter your text here...</p>'}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
+    },
+
+    heading: {
+        type: 'heading',
+        label: 'Heading',
+        icon: '📰',
+        description: 'Large heading text',
+        defaultData: {
+            text: 'Your Heading Here',
+            level: 'h1',
+            fontSize: 32,
+            fontFamily: 'Arial, sans-serif',
+            color: '#000000',
+            textAlign: 'left',
+            padding: '20px',
+            margin: '0px',
+            backgroundColor: '#ffffff',
+            maxWidth: '600px',
+            blockAlign: 'center'
+        },
+        htmlTemplate: (data) => {
+            const tag = data.level || 'h1';
+            const fontSize = data.fontSize || 32;
+            const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
+            return `
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                    <tr>
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
+                                <tr>
+                                    <td align="${data.textAlign || 'left'}" style="padding: ${data.padding || '20px'};">
+                                        <${tag} style="margin: 0; font-family: ${data.fontFamily || 'Arial, sans-serif'}; font-size: ${fontSize}px; color: ${data.color || '#000000'}; font-weight: bold; line-height: 1.2;">
+                                            ${data.text || 'Your Heading Here'}
+                                        </${tag}>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
+    },
+
+    button: {
+        type: 'button',
+        label: 'Button',
+        icon: '🔘',
+        description: 'Call-to-action button',
+        defaultData: {
+            text: 'Click Here',
+            url: '#',
+            backgroundColor: '#2563eb',
+            textColor: '#ffffff',
+            fontSize: 16,
+            padding: '12px 24px',
+            margin: '20px 0px',
+            borderRadius: '4px',
+            fullWidth: false,
+            align: 'left',
+            maxWidth: '600px',
+            blockAlign: 'center'
+        },
+        htmlTemplate: (data) => {
+            const width = data.fullWidth ? '100%' : 'auto';
+            const display = data.fullWidth ? 'block' : 'inline-block';
+            const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
+            
+            return `
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                    <tr>
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%;">
+                                <tr>
+                                    <td align="${data.align || 'left'}" style="padding: 20px;">
+                                        <a href="${data.url || '#'}" 
+                                           style="display: ${display}; width: ${width}; background-color: ${data.backgroundColor || '#2563eb'}; color: ${data.textColor || '#ffffff'}; text-decoration: none; padding: ${data.padding || '12px 24px'}; border-radius: ${data.borderRadius || '4px'}; font-size: ${data.fontSize || 16}px; font-family: Arial, sans-serif; text-align: center;">
+                                            ${data.text || 'Click Here'}
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
+    },
+
+    image: {
+        type: 'image',
+        label: 'Image',
+        icon: '🖼️',
+        description: 'Single image',
+        defaultData: {
+            src: 'https://via.placeholder.com/600x300',
+            alt: 'Image',
+            width: '100%',
+            maxWidth: '600px',
+            align: 'center',
+            padding: '20px',
+            margin: '0px',
+            borderRadius: '0px',
+            backgroundColor: '#ffffff',
+            blockAlign: 'center'
+        },
+        htmlTemplate: (data) => {
+            const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
+            return `
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                    <tr>
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
+                                <tr>
+                                    <td align="${data.align || 'center'}" style="padding: ${data.padding || '20px'};">
+                                        <img src="${data.src || 'https://via.placeholder.com/600x300'}" 
+                                             alt="${data.alt || 'Image'}" 
+                                             width="${maxWidth.replace('px', '')}" 
+                                             style="max-width: 100%; height: auto; border-radius: ${data.borderRadius || '0px'}; display: block;" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
+    },
+
+    divider: {
+        type: 'divider',
+        label: 'Divider',
+        icon: '➖',
+        description: 'Horizontal line separator',
+        defaultData: {
+            color: '#e2e8f0',
+            height: '1px',
+            padding: '20px',
+            margin: '0px',
+            backgroundColor: '#ffffff',
+            maxWidth: '600px',
+            blockAlign: 'center'
+        },
+        htmlTemplate: (data) => {
+            const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
+            return `
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                    <tr>
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
+                                <tr>
+                                    <td align="center" style="padding: ${data.padding || '20px'};">
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <td style="border-top: ${data.height || '1px'} solid ${data.color || '#e2e8f0'};"></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
+    },
+
+    spacer: {
+        type: 'spacer',
+        label: 'Spacer',
+        icon: '⬜',
+        description: 'Vertical spacing',
+        defaultData: {
+            height: '40px',
+            padding: '0px',
+            margin: '0px',
+            backgroundColor: '#ffffff',
+            maxWidth: '600px',
+            blockAlign: 'center'
+        },
+        htmlTemplate: (data) => {
+            const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
+            return `
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                    <tr>
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
+                                <tr>
+                                    <td style="height: ${data.height || '40px'}; line-height: ${data.height || '40px'}; font-size: 1px; padding: ${data.padding || '0px'};">&nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
+    },
+
+    twoColumns: {
+        type: 'twoColumns',
+        label: 'Two Columns',
+        icon: '📊',
+        description: 'Side-by-side content',
+        defaultData: {
+            column1Type: 'html',
+            column2Type: 'html',
+            column1Content: '<p style="margin: 0;">Left column content</p>',
+            column2Content: '<p style="margin: 0;">Right column content</p>',
+            column1Src: 'https://via.placeholder.com/300x200',
+            column1Alt: 'Left Image',
+            column1MaxWidth: '300',
+            column1Align: 'center',
+            column1BorderRadius: '0px',
+            column2Src: 'https://via.placeholder.com/300x200',
+            column2Alt: 'Right Image',
+            column2MaxWidth: '300',
+            column2Align: 'center',
+            column2BorderRadius: '0px',
+            column1Width: '50%',
+            column2Width: '50%',
+            padding: '20px',
+            margin: '0px',
+            backgroundColor: '#ffffff',
+            gap: '20px',
+            maxWidth: '600px',
+            blockAlign: 'center'
+        },
+        htmlTemplate: (data) => {
+            const gap = data.gap || '20px';
+            const col1Width = data.column1Width || '50%';
+            const col2Width = data.column2Width || '50%';
+            const margin = data.margin || '0px';
+            const column1Type = data.column1Type || 'html';
+            const column2Type = data.column2Type || 'html';
+            
+            // Render column 1 content
+            let column1HTML = '';
+            if (column1Type === 'image') {
+                column1HTML = `
+                    <img src="${data.column1Src || 'https://via.placeholder.com/300x200'}" 
+                         alt="${data.column1Alt || 'Left Image'}" 
+                         width="${data.column1MaxWidth || '300'}" 
+                         style="max-width: 100%; height: auto; border-radius: ${data.column1BorderRadius || '0px'}; display: block;" />
+                `;
+            } else {
+                column1HTML = resetParagraphMargins(data.column1Content) || '<p style="margin: 0;">Left column content</p>';
+            }
+            
+            // Render column 2 content
+            let column2HTML = '';
+            if (column2Type === 'image') {
+                column2HTML = `
+                    <img src="${data.column2Src || 'https://via.placeholder.com/300x200'}" 
+                         alt="${data.column2Alt || 'Right Image'}" 
+                         width="${data.column2MaxWidth || '300'}" 
+                         style="max-width: 100%; height: auto; border-radius: ${data.column2BorderRadius || '0px'}; display: block;" />
+                `;
+            } else {
+                column2HTML = resetParagraphMargins(data.column2Content) || '<p style="margin: 0;">Right column content</p>';
+            }
+            
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
+            
+            return `
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                    <tr>
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
+                                <tr>
+                                    <td style="padding: ${data.padding || '20px'};">
+                                        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                                            <tr>
+                                                <td width="${col1Width}" valign="top" style="padding-right: ${gap};" align="${column1Type === 'image' ? (data.column1Align || 'center') : 'left'}">
+                                                    ${column1HTML}
+                                                </td>
+                                                <td width="${col2Width}" valign="top" style="padding-left: ${gap};" align="${column2Type === 'image' ? (data.column2Align || 'center') : 'left'}">
+                                                    ${column2HTML}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
+    },
+
+    footer: {
+        type: 'footer',
+        label: 'Footer',
+        icon: '🔻',
+        description: 'Email footer with links',
+        defaultData: {
+            text: '© 2024 Your Company. All rights reserved.',
+            links: [
+                { text: 'Privacy Policy', url: '#' },
+                { text: 'Unsubscribe', url: '#' }
+            ],
+            fontSize: 12,
+            color: '#64748b',
+            textAlign: 'center',
+            padding: '40px 20px',
+            margin: '0px',
+            backgroundColor: '#f8fafc',
+            maxWidth: '600px',
+            blockAlign: 'center'
+        },
+        htmlTemplate: (data) => {
+            let linksHtml = '';
+            if (data.links && data.links.length > 0) {
+                linksHtml = data.links.map(link => 
+                    `<a href="${link.url || '#'}" style="color: ${data.color || '#64748b'}; text-decoration: underline; margin: 0 8px;">${link.text}</a>`
+                ).join(' | ');
+            }
+            const margin = data.margin || '0px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
+            
+            return `
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                    <tr>
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#f8fafc'};">
+                                <tr>
+                                    <td align="${data.textAlign || 'center'}" style="padding: ${data.padding || '40px 20px'}; font-family: Arial, sans-serif; font-size: ${data.fontSize || 12}px; color: ${data.color || '#64748b'}; line-height: 1.6;">
+                                        ${data.text || '© 2024 Your Company. All rights reserved.'}
+                                        ${linksHtml ? '<br><br>' + linksHtml : ''}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
+    },
+
+    row: {
+        type: 'row',
+        label: 'Row',
+        icon: '📦',
+        description: 'Container for other components',
+        defaultData: {
+            padding: '20px',
+            margin: '0px',
+            backgroundColor: '#ffffff',
+            gap: '20px',
+            maxWidth: '600px',
+            blockAlign: 'center',
+            children: [] // Array of child block IDs
+        },
+        htmlTemplate: (data, childrenHTML = '') => {
+            const margin = data.margin || '0px';
+            const gap = data.gap || '20px';
+            const maxWidth = data.maxWidth || '600px';
+            const blockAlign = data.blockAlign || 'center';
+            
+            // For email HTML, render children in a table structure
+            // Each child is wrapped in a table row with gap as padding-bottom (except last)
+            if (childrenHTML) {
+                // Split children HTML and add gap spacing
+                // Since childrenHTML is already formatted, we'll wrap it in a table
+                return `
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                        <tr>
+                            <td align="${blockAlign}">
+                                <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
+                                    <tr>
+                                        <td style="padding: ${data.padding || '20px'};">
+                                            ${childrenHTML}
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                `;
+            }
+            
+            // Empty row
+            return `
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: ${margin};">
+                    <tr>
+                        <td align="${blockAlign}">
+                            <table width="${maxWidth}" cellpadding="0" cellspacing="0" border="0" style="max-width: 100%; background-color: ${data.backgroundColor || '#ffffff'};">
+                                <tr>
+                                    <td style="padding: ${data.padding || '20px'};">
+                                        &nbsp;
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            `;
+        }
+    }
+};
+
+/**
+ * Get component definition by type
+ * @param {string} type - Component type
+ * @returns {Object|null} - Component definition
+ */
+export function getComponent(type) {
+    return componentDefinitions[type] || null;
+}
+
+/**
+ * Get all component definitions
+ * @returns {Array} - Array of component definitions
+ */
+export function getAllComponents() {
+    return Object.values(componentDefinitions);
+}
+
+/**
+ * Generate HTML for a block
+ * @param {Object} block - Block object with type and data
+ * @param {Function} getChildBlocks - Optional function to get child blocks for nested rendering
+ * @returns {string} - HTML string
+ */
+export function renderBlockHTML(block, getChildBlocks = null) {
+    const component = getComponent(block.type);
+    if (!component) return '';
+    
+    // Handle row component with nested children
+    if (block.type === 'row' && getChildBlocks) {
+        const childBlocks = getChildBlocks(block.id);
+        if (childBlocks && childBlocks.length > 0) {
+            // Render each child block and join with gap spacing
+            const gap = block.data.gap || '20px';
+            const childrenHTML = childBlocks.map((childBlock, index) => {
+                const childHTML = renderBlockHTML(childBlock, getChildBlocks);
+                // For email HTML, wrap each child in a table with gap as padding-bottom (except last)
+                if (index < childBlocks.length - 1) {
+                    return `
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: ${gap};">
+                            <tr>
+                                <td>
+                                    ${childHTML}
+                                </td>
+                            </tr>
+                        </table>
+                    `;
+                }
+                return childHTML;
+            }).join('');
+            return component.htmlTemplate(block.data, childrenHTML);
+        }
+    }
+    
+    return component.htmlTemplate(block.data);
+}
+
