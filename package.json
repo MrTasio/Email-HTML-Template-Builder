@@ -7,14 +7,19 @@
     "dev": "npx serve .",
     "start": "npx serve ."
   },
-  "keywords": ["email", "builder", "template", "drag-drop"],
+  "keywords": [
+    "email",
+    "builder",
+    "template",
+    "drag-drop"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@vercel/analytics": "^1.6.1",
     "sortablejs": "^1.15.0"
   },
   "devDependencies": {
     "html2canvas": "^1.4.1"
   }
 }
-
